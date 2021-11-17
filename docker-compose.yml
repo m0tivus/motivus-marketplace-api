@@ -1,0 +1,32 @@
+version: "3.2"
+services:
+    app:
+        build:
+            context: .
+            dockerfile: dev.Dockerfile
+        ports:
+            - "4000:4000"
+        volumes:
+            - ./:/app
+            - _build:/app/_build
+            - deps:/app/deps
+        env_file: .env
+        environment:
+            - DB_HOST=db
+        command: ["./run.sh"]
+        tty: true
+    db:
+        image: postgres:12
+        ports:
+            - "5432:5432"
+        environment:
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=motivus_wb_marketplace_api_dev
+            - POSTGRES_USER=postgres
+        volumes:
+            - db-data:/var/lib/postgresql/data
+
+volumes:
+    db-data:
+    _build:
+    deps:
