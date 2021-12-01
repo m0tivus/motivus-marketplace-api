@@ -1,7 +1,6 @@
 defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
   use MotivusWbMarketplaceApiWeb.ConnCase
 
-  alias MotivusWbMarketplaceApi.PackageRegistry
   alias MotivusWbMarketplaceApi.PackageRegistry.Version
 
   alias MotivusWbMarketplaceApi.Fixtures
