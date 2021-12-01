@@ -83,7 +83,16 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       data_url: "some data_url",
       hash: "some hash",
       loader_url: "some loader_url",
-      metadata: %{},
+      metadata: %{
+        "long_description" => "#README
+        test",
+        "short_description" => "test",
+        "license" => "MIT",
+        "author" => "cristian@motivus.cl",
+        "url" => "test.com",
+        "upstream_url" => "https://github.com/test/test",
+        "ignored" => "should be ignored"
+      },
       name: "some name",
       wasm_url: "some wasm_url"
     }
@@ -126,7 +135,17 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert version.data_url == "some data_url"
       assert version.hash == "some hash"
       assert version.loader_url == "some loader_url"
-      assert version.metadata == %{}
+
+      assert version.metadata == %{
+               long_description: "#README
+        test",
+               short_description: "test",
+               license: "MIT",
+               author: "cristian@motivus.cl",
+               url: "test.com",
+               upstream_url: "https://github.com/test/test"
+             }
+
       assert version.name == "some name"
       assert version.wasm_url == "some wasm_url"
       assert version.algorithm_id == algorithm.id

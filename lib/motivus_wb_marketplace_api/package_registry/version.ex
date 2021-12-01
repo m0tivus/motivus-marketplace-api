@@ -27,5 +27,27 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Version do
       :data_url,
       :algorithm_id
     ])
+    |> changeset_metadata()
+  end
+
+  def changeset_metadata(chset) do
+    types = %{
+      long_description: :string,
+      short_description: :string,
+      license: :string,
+      author: :string,
+      url: :string,
+      upstream_url: :string
+    }
+
+    with {:changes, %{} = metadata} <- fetch_field(chset, :metadata) do
+      chset
+      |> put_change(
+        :metadata,
+        {%{}, types} |> cast(metadata, Map.keys(types)) |> Map.get(:changes)
+      )
+    else
+      _ -> chset
+    end
   end
 end
