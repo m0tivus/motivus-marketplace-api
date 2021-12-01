@@ -7,5 +7,11 @@ defmodule MotivusWbMarketplaceApiWeb.Router do
 
   scope "/api", MotivusWbMarketplaceApiWeb do
     pipe_through :api
+
+    scope "/package_registry", PackageRegistry, as: :package_registry do
+      resources "/algorithms", AlgorithmController, as: :algorithm do
+        resources "/versions", VersionController
+      end
+    end
   end
 end

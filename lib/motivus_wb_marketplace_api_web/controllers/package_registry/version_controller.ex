@@ -11,11 +11,15 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionController do
     render(conn, "index.json", versions: versions)
   end
 
-  def create(conn, %{"version" => version_params}) do
-    with {:ok, %Version{} = version} <- PackageRegistry.create_version(version_params) do
+  def create(conn, %{"version" => version_params, "algorithm_id" => algorithm_id}) do
+    with {:ok, %Version{} = version} <-
+           PackageRegistry.create_version(version_params |> Map.put("algorithm_id", algorithm_id)) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", Routes.package_registry_version_path(conn, :show, version))
+      |> put_resp_header(
+        "location",
+        Routes.package_registry_algorithm_version_path(conn, :show, algorithm_id, version)
+      )
       |> render("show.json", version: version)
     end
   end

@@ -17,7 +17,15 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Version do
   @doc false
   def changeset(version, attrs) do
     version
-    |> cast(attrs, [:name, :metadata, :hash, :wasm_url, :loader_url, :data_url])
-    |> validate_required([:name, :metadata, :hash, :wasm_url, :loader_url, :data_url])
+    |> cast(attrs, [:name, :metadata, :hash, :wasm_url, :loader_url, :data_url, :algorithm_id])
+    |> validate_required([
+      :name,
+      :metadata,
+      :hash,
+      :wasm_url,
+      :loader_url,
+      :data_url,
+      :algorithm_id
+    ])
   end
 end

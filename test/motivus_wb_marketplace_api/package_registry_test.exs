@@ -1,23 +1,25 @@
 defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
   use MotivusWbMarketplaceApi.DataCase
+  import MotivusWbMarketplaceApi.Fixtures
 
   alias MotivusWbMarketplaceApi.PackageRegistry
 
   describe "algorithms" do
     alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
 
-    @valid_attrs %{default_charge_schema: "some default_charge_schema", default_cost: 120.5, is_public: true, name: "some name"}
-    @update_attrs %{default_charge_schema: "some updated default_charge_schema", default_cost: 456.7, is_public: false, name: "some updated name"}
+    @valid_attrs %{
+      default_charge_schema: "some default_charge_schema",
+      default_cost: 120.5,
+      is_public: true,
+      name: "some name"
+    }
+    @update_attrs %{
+      default_charge_schema: "some updated default_charge_schema",
+      default_cost: 456.7,
+      is_public: false,
+      name: "some updated name"
+    }
     @invalid_attrs %{default_charge_schema: nil, default_cost: nil, is_public: nil, name: nil}
-
-    def algorithm_fixture(attrs \\ %{}) do
-      {:ok, algorithm} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> PackageRegistry.create_algorithm()
-
-      algorithm
-    end
 
     test "list_algorithms/0 returns all algorithms" do
       algorithm = algorithm_fixture()
@@ -43,7 +45,10 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
 
     test "update_algorithm/2 with valid data updates the algorithm" do
       algorithm = algorithm_fixture()
-      assert {:ok, %Algorithm{} = algorithm} = PackageRegistry.update_algorithm(algorithm, @update_attrs)
+
+      assert {:ok, %Algorithm{} = algorithm} =
+               PackageRegistry.update_algorithm(algorithm, @update_attrs)
+
       assert algorithm.default_charge_schema == "some updated default_charge_schema"
       assert algorithm.default_cost == 456.7
       assert algorithm.is_public == false
@@ -52,7 +57,10 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
 
     test "update_algorithm/2 with invalid data returns error changeset" do
       algorithm = algorithm_fixture()
-      assert {:error, %Ecto.Changeset{}} = PackageRegistry.update_algorithm(algorithm, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               PackageRegistry.update_algorithm(algorithm, @invalid_attrs)
+
       assert algorithm == PackageRegistry.get_algorithm!(algorithm.id)
     end
 
@@ -71,18 +79,30 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
   describe "versions" do
     alias MotivusWbMarketplaceApi.PackageRegistry.Version
 
-    @valid_attrs %{data_url: "some data_url", hash: "some hash", loader_url: "some loader_url", metadata: %{}, name: "some name", wasm_url: "some wasm_url"}
-    @update_attrs %{data_url: "some updated data_url", hash: "some updated hash", loader_url: "some updated loader_url", metadata: %{}, name: "some updated name", wasm_url: "some updated wasm_url"}
-    @invalid_attrs %{data_url: nil, hash: nil, loader_url: nil, metadata: nil, name: nil, wasm_url: nil}
-
-    def version_fixture(attrs \\ %{}) do
-      {:ok, version} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> PackageRegistry.create_version()
-
-      version
-    end
+    @valid_attrs %{
+      data_url: "some data_url",
+      hash: "some hash",
+      loader_url: "some loader_url",
+      metadata: %{},
+      name: "some name",
+      wasm_url: "some wasm_url"
+    }
+    @update_attrs %{
+      data_url: "some updated data_url",
+      hash: "some updated hash",
+      loader_url: "some updated loader_url",
+      metadata: %{},
+      name: "some updated name",
+      wasm_url: "some updated wasm_url"
+    }
+    @invalid_attrs %{
+      data_url: nil,
+      hash: nil,
+      loader_url: nil,
+      metadata: nil,
+      name: nil,
+      wasm_url: nil
+    }
 
     test "list_versions/0 returns all versions" do
       version = version_fixture()
@@ -95,13 +115,21 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
     end
 
     test "create_version/1 with valid data creates a version" do
-      assert {:ok, %Version{} = version} = PackageRegistry.create_version(@valid_attrs)
+      algorithm = algorithm_fixture()
+
+      assert {:ok, %Version{} = version} =
+               PackageRegistry.create_version(
+                 @valid_attrs
+                 |> Map.merge(%{algorithm_id: algorithm.id})
+               )
+
       assert version.data_url == "some data_url"
       assert version.hash == "some hash"
       assert version.loader_url == "some loader_url"
       assert version.metadata == %{}
       assert version.name == "some name"
       assert version.wasm_url == "some wasm_url"
+      assert version.algorithm_id == algorithm.id
     end
 
     test "create_version/1 with invalid data returns error changeset" do
@@ -141,7 +169,11 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
     alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser
 
     @valid_attrs %{charge_schema: "some charge_schema", cost: 120.5, role: "some role"}
-    @update_attrs %{charge_schema: "some updated charge_schema", cost: 456.7, role: "some updated role"}
+    @update_attrs %{
+      charge_schema: "some updated charge_schema",
+      cost: 456.7,
+      role: "some updated role"
+    }
     @invalid_attrs %{charge_schema: nil, cost: nil, role: nil}
 
     def algorithm_user_fixture(attrs \\ %{}) do
@@ -164,7 +196,9 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
     end
 
     test "create_algorithm_user/1 with valid data creates a algorithm_user" do
-      assert {:ok, %AlgorithmUser{} = algorithm_user} = PackageRegistry.create_algorithm_user(@valid_attrs)
+      assert {:ok, %AlgorithmUser{} = algorithm_user} =
+               PackageRegistry.create_algorithm_user(@valid_attrs)
+
       assert algorithm_user.charge_schema == "some charge_schema"
       assert algorithm_user.cost == 120.5
       assert algorithm_user.role == "some role"
@@ -176,7 +210,10 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
 
     test "update_algorithm_user/2 with valid data updates the algorithm_user" do
       algorithm_user = algorithm_user_fixture()
-      assert {:ok, %AlgorithmUser{} = algorithm_user} = PackageRegistry.update_algorithm_user(algorithm_user, @update_attrs)
+
+      assert {:ok, %AlgorithmUser{} = algorithm_user} =
+               PackageRegistry.update_algorithm_user(algorithm_user, @update_attrs)
+
       assert algorithm_user.charge_schema == "some updated charge_schema"
       assert algorithm_user.cost == 456.7
       assert algorithm_user.role == "some updated role"
@@ -184,14 +221,20 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
 
     test "update_algorithm_user/2 with invalid data returns error changeset" do
       algorithm_user = algorithm_user_fixture()
-      assert {:error, %Ecto.Changeset{}} = PackageRegistry.update_algorithm_user(algorithm_user, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               PackageRegistry.update_algorithm_user(algorithm_user, @invalid_attrs)
+
       assert algorithm_user == PackageRegistry.get_algorithm_user!(algorithm_user.id)
     end
 
     test "delete_algorithm_user/1 deletes the algorithm_user" do
       algorithm_user = algorithm_user_fixture()
       assert {:ok, %AlgorithmUser{}} = PackageRegistry.delete_algorithm_user(algorithm_user)
-      assert_raise Ecto.NoResultsError, fn -> PackageRegistry.get_algorithm_user!(algorithm_user.id) end
+
+      assert_raise Ecto.NoResultsError, fn ->
+        PackageRegistry.get_algorithm_user!(algorithm_user.id)
+      end
     end
 
     test "change_algorithm_user/1 returns a algorithm_user changeset" do

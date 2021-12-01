@@ -4,6 +4,8 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
   alias MotivusWbMarketplaceApi.PackageRegistry
   alias MotivusWbMarketplaceApi.PackageRegistry.Version
 
+  alias MotivusWbMarketplaceApi.Fixtures
+
   @create_attrs %{
     data_url: "some data_url",
     hash: "some hash",
@@ -20,30 +22,39 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
     name: "some updated name",
     wasm_url: "some updated wasm_url"
   }
-  @invalid_attrs %{data_url: nil, hash: nil, loader_url: nil, metadata: nil, name: nil, wasm_url: nil}
+  @invalid_attrs %{
+    data_url: nil,
+    hash: nil,
+    loader_url: nil,
+    metadata: nil,
+    name: nil,
+    wasm_url: nil
+  }
 
-  def fixture(:version) do
-    {:ok, version} = PackageRegistry.create_version(@create_attrs)
-    version
-  end
+  def fixture(:version), do: Fixtures.version_fixture()
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    algorithm = Fixtures.algorithm_fixture()
+    {:ok, conn: put_req_header(conn, "accept", "application/json"), algorithm: algorithm}
   end
 
   describe "index" do
-    test "lists all versions", %{conn: conn} do
-      conn = get(conn, Routes.package_registry_version_path(conn, :index))
+    test "lists all versions", %{conn: conn, algorithm: algorithm} do
+      conn = get(conn, Routes.package_registry_algorithm_version_path(conn, :index, algorithm.id))
       assert json_response(conn, 200)["data"] == []
     end
   end
 
   describe "create version" do
-    test "renders version when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.package_registry_version_path(conn, :create), version: @create_attrs)
+    test "renders version when data is valid", %{conn: conn, algorithm: algorithm} do
+      conn =
+        post(conn, Routes.package_registry_algorithm_version_path(conn, :create, algorithm),
+          version: @create_attrs
+        )
+
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
-      conn = get(conn, Routes.package_registry_version_path(conn, :show, id))
+      conn = get(conn, Routes.package_registry_algorithm_version_path(conn, :show, algorithm, id))
 
       assert %{
                "id" => id,
@@ -56,8 +67,12 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.package_registry_version_path(conn, :create), version: @invalid_attrs)
+    test "renders errors when data is invalid", %{conn: conn, algorithm: algorithm} do
+      conn =
+        post(conn, Routes.package_registry_algorithm_version_path(conn, :create, algorithm),
+          version: @invalid_attrs
+        )
+
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -65,25 +80,45 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
   describe "update version" do
     setup [:create_version]
 
-    test "renders version when data is valid", %{conn: conn, version: %Version{id: id} = version} do
-      conn = put(conn, Routes.package_registry_version_path(conn, :update, version), version: @update_attrs)
+    test "renders version when data is valid", %{
+      conn: conn,
+      version: %Version{id: id} = version,
+      algorithm: algorithm
+    } do
+      conn =
+        put(
+          conn,
+          Routes.package_registry_algorithm_version_path(conn, :update, algorithm, version),
+          version: @update_attrs
+        )
+
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
-      conn = get(conn, Routes.package_registry_version_path(conn, :show, id))
+      conn = get(conn, Routes.package_registry_algorithm_version_path(conn, :show, algorithm, id))
 
       assert %{
                "id" => id,
                "data_url" => "some updated data_url",
                "hash" => "some updated hash",
                "loader_url" => "some updated loader_url",
-               "metadata" => {},
+               "metadata" => %{},
                "name" => "some updated name",
                "wasm_url" => "some updated wasm_url"
              } = json_response(conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn, version: version} do
-      conn = put(conn, Routes.package_registry_version_path(conn, :update, version), version: @invalid_attrs)
+    test "renders errors when data is invalid", %{
+      conn: conn,
+      version: version,
+      algorithm: algorithm
+    } do
+      conn =
+        put(
+          conn,
+          Routes.package_registry_algorithm_version_path(conn, :update, algorithm, version),
+          version: @invalid_attrs
+        )
+
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -91,12 +126,17 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
   describe "delete version" do
     setup [:create_version]
 
-    test "deletes chosen version", %{conn: conn, version: version} do
-      conn = delete(conn, Routes.package_registry_version_path(conn, :delete, version))
+    test "deletes chosen version", %{conn: conn, version: version, algorithm: algorithm} do
+      conn =
+        delete(
+          conn,
+          Routes.package_registry_algorithm_version_path(conn, :delete, algorithm, version)
+        )
+
       assert response(conn, 204)
 
       assert_error_sent 404, fn ->
-        get(conn, Routes.package_registry_version_path(conn, :show, version))
+        get(conn, Routes.package_registry_algorithm_version_path(conn, :show, algorithm, version))
       end
     end
   end
