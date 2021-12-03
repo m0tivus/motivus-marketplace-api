@@ -6,12 +6,8 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
   alias MotivusWbMarketplaceApi.Fixtures
 
   @create_attrs %{
-    data_url: "some data_url",
-    hash: "some hash",
-    loader_url: "some loader_url",
     metadata: %{},
-    name: "some name",
-    wasm_url: "some wasm_url"
+    name: "v1.0.0"
   }
   @update_attrs %{
     data_url: "some updated data_url",
@@ -46,9 +42,14 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
 
   describe "create version" do
     test "renders version when data is valid", %{conn: conn, algorithm: algorithm} do
+      package = %Plug.Upload{
+        path: 'test/support/fixtures/package-v1.0.0.zip',
+        filename: "package-v1.0.0.zip"
+      }
+
       conn =
         post(conn, Routes.package_registry_algorithm_version_path(conn, :create, algorithm),
-          version: @create_attrs
+          version: @create_attrs |> Map.put(:package, package)
         )
 
       assert %{"id" => id} = json_response(conn, 201)["data"]
@@ -57,12 +58,12 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
 
       assert %{
                "id" => id,
-               "data_url" => "some data_url",
-               "hash" => "some hash",
-               "loader_url" => "some loader_url",
+               "hash" => nil,
                "metadata" => %{},
-               "name" => "some name",
-               "wasm_url" => "some wasm_url"
+               "name" => "v1.0.0",
+               "data_url" => "https://" <> _linkd,
+               "loader_url" => "https://" <> _linkl,
+               "wasm_url" => "https://" <> _linkw
              } = json_response(conn, 200)["data"]
     end
 

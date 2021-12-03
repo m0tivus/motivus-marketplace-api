@@ -46,3 +46,9 @@ config :motivus_wb_marketplace_api, MotivusWbMarketplaceApiWeb.Endpoint,
 #
 # Then you can assemble a release by calling `mix release`.
 # See `mix help release` for more information.
+
+config :ex_aws,
+  access_key_id: {:system, "AWS_ACCESS_KEY_ID"},
+  secret_access_key: {:system, "AWS_SECRET_ACCESS_KEY"},
+  region: {:system, "AWS_REGION"},
+  bucket: {:system, "AWS_S3_BUCKET_NAME"}

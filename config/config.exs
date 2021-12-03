@@ -26,6 +26,17 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :ex_aws,
+  access_key_id: "AKIAXTPV4Y3S7GNVOAOY",
+  secret_access_key: "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",
+  region: "us-east-1",
+  bucket: "wb-marketplace-test"
+
+config :ex_aws, :s3,
+  scheme: "https://",
+  host: "wb-marketplace-test.s3.amazonaws.com",
+  region: "us-east-1"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

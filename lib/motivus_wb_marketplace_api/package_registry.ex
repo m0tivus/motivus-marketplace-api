@@ -1,4 +1,6 @@
 defmodule MotivusWbMarketplaceApi.PackageRegistry do
+  alias ExAws.S3
+
   @moduledoc """
   The PackageRegistry context.
   """
@@ -149,6 +151,47 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
     %Version{}
     |> Version.changeset(attrs)
     |> Repo.insert()
+  end
+
+  def publish_version(attrs \\ %{}) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:version, %Version{} |> Version.changeset(attrs))
+    |> Ecto.Multi.run(:s3, fn _repo, %{version: version} ->
+      upload_package(version)
+    end)
+    |> Ecto.Multi.update(:version_urls, fn %{s3: links, version: version} ->
+      version |> Version.changeset(links)
+    end)
+    |> Repo.transaction()
+  end
+
+  def upload_package(version) do
+    bucket = Application.get_env(:ex_aws, :bucket)
+
+    upload_file = fn {src_path, dest_path} ->
+      S3.put_object(bucket, dest_path, File.read!(src_path), acl: :public_read)
+      |> ExAws.request!()
+    end
+
+    paths =
+      Map.take(version, [:wasm_url, :loader_url, :data_url])
+      |> Map.values()
+      |> Enum.map(fn path -> {to_string(path), to_string(path)} end)
+      |> Enum.into(%{})
+
+    # TODO use client uuid hash instead of tmp
+    with :ok <-
+           paths
+           |> Task.async_stream(upload_file, max_concurrency: 10)
+           # TODO rm dir
+           |> Stream.run() do
+      {:ok,
+       Map.take(version, [:wasm_url, :loader_url, :data_url])
+       |> Enum.map(fn {k, v} ->
+         {k, "https://#{bucket}.s3.amazonaws.com/#{bucket}#{v |> to_string()}"}
+       end)
+       |> Enum.into(%{})}
+    end
   end
 
   @doc """
