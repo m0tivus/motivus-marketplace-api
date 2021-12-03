@@ -23,6 +23,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionController do
            PackageRegistry.publish_version(
              version_params
              |> Map.put("algorithm_id", algorithm_id)
+             |> Map.put("algorithm", conn.assigns.algorithm)
            ) do
       conn
       |> put_status(:created)
@@ -42,19 +43,6 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionController do
     render(conn, "show.json", version: version)
   end
 
-  def update(conn, %{"id" => id, "version" => version_params}) do
-    version = PackageRegistry.get_version!(id)
-
-    with {:ok, %Version{} = version} <- PackageRegistry.update_version(version, version_params) do
-      render(conn, "show.json", version: version)
-    end
-  end
-
-  def delete(conn, %{"id" => id}) do
-    version = PackageRegistry.get_version!(id)
-
-    with {:ok, %Version{}} <- PackageRegistry.delete_version(version) do
-      send_resp(conn, :no_content, "")
-    end
-  end
+  def update(conn, _params), do: conn |> send_resp(:method_not_allowed, "not allowed")
+  def delete(conn, _params), do: conn |> send_resp(:method_not_allowed, "not allowed")
 end

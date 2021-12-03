@@ -149,18 +149,16 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   """
   def create_version(attrs \\ %{}) do
     %Version{}
-    |> Version.changeset(attrs)
+    |> Version.create_changeset(attrs)
     |> Repo.insert()
   end
 
   def publish_version(attrs \\ %{}) do
     Ecto.Multi.new()
-    |> Ecto.Multi.insert(:version, %Version{} |> Version.changeset(attrs))
-    |> Ecto.Multi.run(:s3, fn _repo, %{version: version} ->
-      upload_package(version)
-    end)
+    |> Ecto.Multi.insert(:version, %Version{} |> Version.create_changeset(attrs))
+    |> Ecto.Multi.run(:s3, fn _repo, %{version: version} -> upload_package(version) end)
     |> Ecto.Multi.update(:version_urls, fn %{s3: links, version: version} ->
-      version |> Version.changeset(links)
+      version |> Version.update_changeset(links)
     end)
     |> Repo.transaction()
   end
@@ -208,7 +206,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   """
   def update_version(%Version{} = version, attrs) do
     version
-    |> Version.changeset(attrs)
+    |> Version.update_changeset(attrs)
     |> Repo.update()
   end
 
@@ -238,7 +236,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def change_version(%Version{} = version) do
-    Version.changeset(version, %{})
+    Version.update_changeset(version, %{})
   end
 
   alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser

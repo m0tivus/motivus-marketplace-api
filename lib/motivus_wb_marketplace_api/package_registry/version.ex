@@ -15,7 +15,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Version do
   end
 
   @doc false
-  def changeset(version, attrs) do
+  def create_changeset(version, attrs) do
     version
     |> cast(attrs, [
       :name,
@@ -29,7 +29,8 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Version do
     |> validate_required([
       :name
     ])
-    |> check_package(attrs)
+    |> validate_package_name(attrs)
+    |> validate_package(attrs)
     |> validate_required([
       :metadata,
       :wasm_url,
@@ -38,6 +39,20 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Version do
       :algorithm_id
     ])
     |> changeset_metadata()
+  end
+
+  def update_changeset(version, attrs) do
+    version
+    |> cast(attrs, [
+      :hash,
+      :wasm_url,
+      :loader_url,
+      :data_url
+    ])
+    |> validate_required([
+      :wasm_url,
+      :loader_url
+    ])
   end
 
   def changeset_metadata(chset) do
@@ -61,23 +76,25 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Version do
     end
   end
 
-  def check_package(chset, attrs) do
+  def validate_package(chset, %{
+        "algorithm" => algorithm,
+        "package" => package = %Plug.Upload{}
+      }) do
     file_extensions = ~w(.js .wasm .data.zip)
 
     unique_filename = UUID.uuid4(:hex)
     directory = '/tmp/#{unique_filename}'
 
-    name = get_field(chset, :name) |> to_string
+    version_name = get_field(chset, :name) |> to_string
 
     file_whitelist =
       1..3
-      |> Enum.map(fn _ -> "package" <> "-" <> name end)
+      |> Enum.map(fn _ -> algorithm.name <> "-v" <> version_name end)
       |> Enum.zip(file_extensions)
       |> Enum.map(fn {file_name, extension} -> file_name <> extension end)
       |> Enum.map(&String.to_charlist/1)
 
-    with %Plug.Upload{} = package <- attrs["package"],
-         {:ok, file_list} <- :zip.unzip(package.path, cwd: directory, file_list: file_whitelist) do
+    with {:ok, file_list} <- :zip.unzip(package.path, cwd: directory, file_list: file_whitelist) do
       file_list
       |> Enum.reduce(chset, fn file_path, chset_ ->
         path_string = file_path |> to_string
@@ -89,14 +106,36 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Version do
         end
       end)
     else
-      nil ->
-        case chset.action do
-          :create -> chset |> add_error(:package, "can't be blank")
-          _ -> chset
-        end
-
       _ ->
         chset |> add_error(:package, "incorrect package contents")
     end
   end
+
+  def validate_package(chset, %{
+        "algorithm" => _algorithm
+      }),
+      do: chset |> add_error(:package, "can't be blank")
+
+  def validate_package(chset, %{
+        "package" => _package = %Plug.Upload{}
+      }),
+      do: chset |> add_error(:algorithm, "missing preload")
+
+  def validate_package(chset, _),
+    do: chset |> add_error(:algorithm, "missing preload") |> add_error(:package, "can't be blank")
+
+  def validate_package_name(chset, %{
+        "algorithm" => algorithm,
+        "package" => package = %Plug.Upload{}
+      }) do
+    version_name = get_field(chset, :name) |> to_string
+    package_name = package.filename
+
+    case "#{algorithm.name}-v#{version_name}.zip" do
+      ^package_name -> chset
+      n -> chset |> add_error(:package, "wrong package file name", hint: n)
+    end
+  end
+
+  def validate_package_name(chset, _attrs), do: chset |> add_error(:package, "can't be blank")
 end
