@@ -15,7 +15,10 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmController do
     with {:ok, %Algorithm{} = algorithm} <- PackageRegistry.create_algorithm(algorithm_params) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", Routes.package_registry_algorithm_path(conn, :show, algorithm))
+      |> put_resp_header(
+        "location",
+        Routes.package_registry_algorithm_path(conn, :show, algorithm)
+      )
       |> render("show.json", algorithm: algorithm)
     end
   end
@@ -28,16 +31,11 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmController do
   def update(conn, %{"id" => id, "algorithm" => algorithm_params}) do
     algorithm = PackageRegistry.get_algorithm!(id)
 
-    with {:ok, %Algorithm{} = algorithm} <- PackageRegistry.update_algorithm(algorithm, algorithm_params) do
+    with {:ok, %Algorithm{} = algorithm} <-
+           PackageRegistry.update_algorithm(algorithm, algorithm_params) do
       render(conn, "show.json", algorithm: algorithm)
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    algorithm = PackageRegistry.get_algorithm!(id)
-
-    with {:ok, %Algorithm{}} <- PackageRegistry.delete_algorithm(algorithm) do
-      send_resp(conn, :no_content, "")
-    end
-  end
+  def delete(conn, _params), do: conn |> send_resp(:method_not_allowed, "not allowed")
 end

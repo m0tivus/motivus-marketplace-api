@@ -1,16 +1,14 @@
 defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
   use MotivusWbMarketplaceApiWeb.ConnCase
 
-  alias MotivusWbMarketplaceApi.PackageRegistry.Version
-
   alias MotivusWbMarketplaceApi.Fixtures
 
   @create_attrs %{
     metadata: %{},
     name: "1.0.0",
     package: %Plug.Upload{
-      path: 'test/support/fixtures/package-v1.0.0.zip',
-      filename: "package-v1.0.0.zip"
+      path: 'test/support/fixtures/package-1.0.0.zip',
+      filename: "package-1.0.0.zip"
     }
   }
   @invalid_attrs %{
@@ -51,7 +49,8 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
                "name" => "1.0.0",
                "data_url" => "https://" <> _linkd,
                "loader_url" => "https://" <> _linkl,
-               "wasm_url" => "https://" <> _linkw
+               "wasm_url" => "https://" <> _linkw,
+               "inserted_at" => _date
              } = json_response(conn, 200)["data"]
     end
 
@@ -70,7 +69,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
 
     test "does not allow version update", %{
       conn: conn,
-      version: %Version{id: id} = version,
+      version: version,
       algorithm: algorithm
     } do
       conn =

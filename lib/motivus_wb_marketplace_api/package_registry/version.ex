@@ -89,7 +89,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Version do
 
     file_whitelist =
       1..3
-      |> Enum.map(fn _ -> algorithm.name <> "-v" <> version_name end)
+      |> Enum.map(fn _ -> algorithm.name <> "-" <> version_name end)
       |> Enum.zip(file_extensions)
       |> Enum.map(fn {file_name, extension} -> file_name <> extension end)
       |> Enum.map(&String.to_charlist/1)
@@ -131,7 +131,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Version do
     version_name = get_field(chset, :name) |> to_string
     package_name = package.filename
 
-    case "#{algorithm.name}-v#{version_name}.zip" do
+    case "#{algorithm.name}-#{version_name}.zip" do
       ^package_name -> chset
       n -> chset |> add_error(:package, "wrong package file name", hint: n)
     end

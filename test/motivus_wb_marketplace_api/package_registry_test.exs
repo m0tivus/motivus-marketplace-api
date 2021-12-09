@@ -11,7 +11,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       default_charge_schema: "some default_charge_schema",
       default_cost: 120.5,
       is_public: true,
-      name: "some name"
+      name: "package"
     }
     @update_attrs %{
       default_charge_schema: "some updated default_charge_schema",
@@ -36,7 +36,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert algorithm.default_charge_schema == "some default_charge_schema"
       assert algorithm.default_cost == 120.5
       assert algorithm.is_public == true
-      assert algorithm.name == "some name"
+      assert algorithm.name == "package"
     end
 
     test "create_algorithm/1 with invalid data returns error changeset" do
@@ -52,7 +52,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert algorithm.default_charge_schema == "some updated default_charge_schema"
       assert algorithm.default_cost == 456.7
       assert algorithm.is_public == false
-      assert algorithm.name == "some updated name"
+      assert algorithm.name == "package"
     end
 
     test "update_algorithm/2 with invalid data returns error changeset" do
@@ -93,8 +93,8 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       },
       "name" => "1.0.0",
       "package" => %Plug.Upload{
-        path: 'test/support/fixtures/package-v1.0.0.zip',
-        filename: "package-v1.0.0.zip"
+        path: 'test/support/fixtures/package-1.0.0.zip',
+        filename: "package-1.0.0.zip"
       }
     }
     @update_attrs %{

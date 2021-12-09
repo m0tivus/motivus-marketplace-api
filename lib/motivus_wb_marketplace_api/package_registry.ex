@@ -20,7 +20,9 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def list_algorithms do
-    Repo.all(Algorithm)
+    Algorithm
+    |> preload(:versions)
+    |> Repo.all()
   end
 
   @doc """
@@ -37,7 +39,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       ** (Ecto.NoResultsError)
 
   """
-  def get_algorithm!(id), do: Repo.get!(Algorithm, id)
+  def get_algorithm!(id), do: Algorithm |> preload(:versions) |> Repo.get!(id)
 
   @doc """
   Creates a algorithm.
@@ -52,9 +54,12 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def create_algorithm(attrs \\ %{}) do
-    %Algorithm{}
-    |> Algorithm.changeset(attrs)
-    |> Repo.insert()
+    with {:ok, algorithm} <-
+           %Algorithm{}
+           |> Algorithm.create_changeset(attrs)
+           |> Repo.insert() do
+      {:ok, algorithm |> Repo.preload(:versions)}
+    end
   end
 
   @doc """
@@ -71,7 +76,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   """
   def update_algorithm(%Algorithm{} = algorithm, attrs) do
     algorithm
-    |> Algorithm.changeset(attrs)
+    |> Algorithm.update_changeset(attrs)
     |> Repo.update()
   end
 
@@ -101,7 +106,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def change_algorithm(%Algorithm{} = algorithm) do
-    Algorithm.changeset(algorithm, %{})
+    Algorithm.update_changeset(algorithm, %{})
   end
 
   alias MotivusWbMarketplaceApi.PackageRegistry.Version
