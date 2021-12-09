@@ -8,13 +8,13 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
     alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
 
     @valid_attrs %{
-      default_charge_schema: "some default_charge_schema",
+      default_charge_schema: "PER_EXECUTION",
       default_cost: 120.5,
       is_public: true,
       name: "package"
     }
     @update_attrs %{
-      default_charge_schema: "some updated default_charge_schema",
+      default_charge_schema: "PER_MINUTE",
       default_cost: 456.7,
       is_public: false,
       name: "some updated name"
@@ -33,7 +33,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
 
     test "create_algorithm/1 with valid data creates a algorithm" do
       assert {:ok, %Algorithm{} = algorithm} = PackageRegistry.create_algorithm(@valid_attrs)
-      assert algorithm.default_charge_schema == "some default_charge_schema"
+      assert algorithm.default_charge_schema == "PER_EXECUTION"
       assert algorithm.default_cost == 120.5
       assert algorithm.is_public == true
       assert algorithm.name == "package"
@@ -49,7 +49,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert {:ok, %Algorithm{} = algorithm} =
                PackageRegistry.update_algorithm(algorithm, @update_attrs)
 
-      assert algorithm.default_charge_schema == "some updated default_charge_schema"
+      assert algorithm.default_charge_schema == "PER_MINUTE"
       assert algorithm.default_cost == 456.7
       assert algorithm.is_public == false
       assert algorithm.name == "package"

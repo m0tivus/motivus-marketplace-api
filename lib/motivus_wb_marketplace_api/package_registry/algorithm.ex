@@ -3,6 +3,8 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Algorithm do
   import Ecto.Changeset
   alias MotivusWbMarketplaceApi.PackageRegistry.Version
 
+  @charge_schemas ~w(PER_EXECUTION PER_MINUTE)
+
   schema "algorithms" do
     field :default_charge_schema, :string
     field :default_cost, :float
@@ -18,6 +20,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Algorithm do
   def create_changeset(algorithm, attrs) do
     algorithm
     |> cast(attrs, [:name, :is_public, :default_cost, :default_charge_schema])
+    |> validate_inclusion(:default_charge_schema, @charge_schemas)
     |> validate_required([:name, :is_public, :default_cost, :default_charge_schema])
   end
 
@@ -25,6 +28,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Algorithm do
   def update_changeset(algorithm, attrs) do
     algorithm
     |> cast(attrs, [:is_public, :default_cost, :default_charge_schema])
+    |> validate_inclusion(:default_charge_schema, @charge_schemas)
     |> validate_required([:is_public, :default_cost, :default_charge_schema])
   end
 end

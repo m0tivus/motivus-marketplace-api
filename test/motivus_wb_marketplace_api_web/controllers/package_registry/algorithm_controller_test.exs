@@ -6,13 +6,13 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
   alias MotivusWbMarketplaceApi.Fixtures
 
   @create_attrs %{
-    default_charge_schema: "some default_charge_schema",
+    default_charge_schema: "PER_EXECUTION",
     default_cost: 120.5,
     is_public: true,
     name: "package"
   }
   @update_attrs %{
-    default_charge_schema: "some updated default_charge_schema",
+    default_charge_schema: "PER_MINUTE",
     default_cost: 456.7,
     is_public: false
   }
@@ -46,7 +46,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
 
       assert %{
                "id" => id,
-               "default_charge_schema" => "some default_charge_schema",
+               "default_charge_schema" => "PER_EXECUTION",
                "default_cost" => 120.5,
                "is_public" => true,
                "name" => "package",
@@ -85,7 +85,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
 
       assert %{
                "id" => id,
-               "default_charge_schema" => "some updated default_charge_schema",
+               "default_charge_schema" => "PER_MINUTE",
                "default_cost" => 456.7,
                "is_public" => false,
                "name" => "package"
