@@ -1,39 +1,26 @@
 defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
   use MotivusWbMarketplaceApiWeb.ConnCase
 
-  alias MotivusWbMarketplaceApi.PackageRegistry.Version
-
   alias MotivusWbMarketplaceApi.Fixtures
 
   @create_attrs %{
-    data_url: "some data_url",
-    hash: "some hash",
-    loader_url: "some loader_url",
     metadata: %{},
-    name: "some name",
-    wasm_url: "some wasm_url"
-  }
-  @update_attrs %{
-    data_url: "some updated data_url",
-    hash: "some updated hash",
-    loader_url: "some updated loader_url",
-    metadata: %{},
-    name: "some updated name",
-    wasm_url: "some updated wasm_url"
+    name: "1.0.0",
+    package: %Plug.Upload{
+      path: 'test/support/fixtures/package-1.0.0.zip',
+      filename: "package-1.0.0.zip"
+    }
   }
   @invalid_attrs %{
-    data_url: nil,
-    hash: nil,
-    loader_url: nil,
     metadata: nil,
     name: nil,
-    wasm_url: nil
+    package: nil
   }
 
   def fixture(:version), do: Fixtures.version_fixture()
 
   setup %{conn: conn} do
-    algorithm = Fixtures.algorithm_fixture()
+    algorithm = Fixtures.algorithm_fixture(%{name: "package"})
     {:ok, conn: put_req_header(conn, "accept", "application/json"), algorithm: algorithm}
   end
 
@@ -57,12 +44,13 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
 
       assert %{
                "id" => id,
-               "data_url" => "some data_url",
-               "hash" => "some hash",
-               "loader_url" => "some loader_url",
+               "hash" => nil,
                "metadata" => %{},
-               "name" => "some name",
-               "wasm_url" => "some wasm_url"
+               "name" => "1.0.0",
+               "data_url" => "https://" <> _linkd,
+               "loader_url" => "https://" <> _linkl,
+               "wasm_url" => "https://" <> _linkw,
+               "inserted_at" => _date
              } = json_response(conn, 200)["data"]
     end
 
@@ -79,34 +67,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
   describe "update version" do
     setup [:create_version]
 
-    test "renders version when data is valid", %{
-      conn: conn,
-      version: %Version{id: id} = version,
-      algorithm: algorithm
-    } do
-      conn =
-        put(
-          conn,
-          Routes.package_registry_algorithm_version_path(conn, :update, algorithm, version),
-          version: @update_attrs
-        )
-
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get(conn, Routes.package_registry_algorithm_version_path(conn, :show, algorithm, id))
-
-      assert %{
-               "id" => id,
-               "data_url" => "some updated data_url",
-               "hash" => "some updated hash",
-               "loader_url" => "some updated loader_url",
-               "metadata" => %{},
-               "name" => "some updated name",
-               "wasm_url" => "some updated wasm_url"
-             } = json_response(conn, 200)["data"]
-    end
-
-    test "renders errors when data is invalid", %{
+    test "does not allow version update", %{
       conn: conn,
       version: version,
       algorithm: algorithm
@@ -114,29 +75,24 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
       conn =
         put(
           conn,
-          Routes.package_registry_algorithm_version_path(conn, :update, algorithm, version),
-          version: @invalid_attrs
+          Routes.package_registry_algorithm_version_path(conn, :update, algorithm, version)
         )
 
-      assert json_response(conn, 422)["errors"] != %{}
+      assert response(conn, 405)
     end
   end
 
   describe "delete version" do
     setup [:create_version]
 
-    test "deletes chosen version", %{conn: conn, version: version, algorithm: algorithm} do
+    test "does not allow version deletion", %{conn: conn, version: version, algorithm: algorithm} do
       conn =
         delete(
           conn,
           Routes.package_registry_algorithm_version_path(conn, :delete, algorithm, version)
         )
 
-      assert response(conn, 204)
-
-      assert_error_sent 404, fn ->
-        get(conn, Routes.package_registry_algorithm_version_path(conn, :show, algorithm, version))
-      end
+      assert response(conn, 405)
     end
   end
 

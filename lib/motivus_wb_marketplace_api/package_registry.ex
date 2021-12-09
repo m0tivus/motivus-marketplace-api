@@ -1,4 +1,6 @@
 defmodule MotivusWbMarketplaceApi.PackageRegistry do
+  alias ExAws.S3
+
   @moduledoc """
   The PackageRegistry context.
   """
@@ -18,7 +20,9 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def list_algorithms do
-    Repo.all(Algorithm)
+    Algorithm
+    |> preload(:versions)
+    |> Repo.all()
   end
 
   @doc """
@@ -35,7 +39,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       ** (Ecto.NoResultsError)
 
   """
-  def get_algorithm!(id), do: Repo.get!(Algorithm, id)
+  def get_algorithm!(id), do: Algorithm |> preload(:versions) |> Repo.get!(id)
 
   @doc """
   Creates a algorithm.
@@ -50,9 +54,12 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def create_algorithm(attrs \\ %{}) do
-    %Algorithm{}
-    |> Algorithm.changeset(attrs)
-    |> Repo.insert()
+    with {:ok, algorithm} <-
+           %Algorithm{}
+           |> Algorithm.create_changeset(attrs)
+           |> Repo.insert() do
+      {:ok, algorithm |> Repo.preload(:versions)}
+    end
   end
 
   @doc """
@@ -69,7 +76,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   """
   def update_algorithm(%Algorithm{} = algorithm, attrs) do
     algorithm
-    |> Algorithm.changeset(attrs)
+    |> Algorithm.update_changeset(attrs)
     |> Repo.update()
   end
 
@@ -99,7 +106,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def change_algorithm(%Algorithm{} = algorithm) do
-    Algorithm.changeset(algorithm, %{})
+    Algorithm.update_changeset(algorithm, %{})
   end
 
   alias MotivusWbMarketplaceApi.PackageRegistry.Version
@@ -147,9 +154,54 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   """
   def create_version(attrs \\ %{}) do
     %Version{}
-    |> Version.changeset(attrs)
+    |> Version.create_changeset(attrs)
     |> Repo.insert()
   end
+
+  def publish_version(attrs \\ %{}) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:version, %Version{} |> Version.create_changeset(attrs))
+    |> Ecto.Multi.run(:s3, fn _repo, %{version: version} -> upload_package(version) end)
+    |> Ecto.Multi.update(:version_urls, fn %{s3: links, version: version} ->
+      version |> Version.update_changeset(links)
+    end)
+    |> Repo.transaction()
+  end
+
+  def upload_package(version) do
+    bucket = Application.get_env(:ex_aws, :bucket)
+
+    upload_file = fn {src_path, dest_path} ->
+      S3.put_object(bucket, dest_path, File.read!(src_path), acl: :public_read)
+      |> ExAws.request!()
+    end
+
+    paths =
+      Map.take(version, [:wasm_url, :loader_url, :data_url])
+      |> Map.values()
+      |> Enum.map(fn path -> {to_string(path), to_string(path)} end)
+      |> Enum.into(%{})
+
+    [_, _, uuid | _] = version.wasm_url |> to_string |> String.split("/")
+
+    # TODO use client uuid hash instead of tmp
+    with :ok <-
+           paths
+           |> Task.async_stream(upload_file, max_concurrency: 10)
+           # TODO rm dir
+           |> Stream.run(),
+         File.rm_rf!("/tmp/" <> uuid) do
+      {:ok, version |> put_version_urls(bucket)}
+    end
+  end
+
+  defp put_version_urls(version, bucket),
+    do:
+      Map.take(version, [:wasm_url, :loader_url, :data_url])
+      |> Enum.map(fn {k, v} ->
+        {k, "https://#{bucket}.s3.amazonaws.com/#{bucket}#{v |> to_string()}"}
+      end)
+      |> Enum.into(%{})
 
   @doc """
   Updates a version.
@@ -165,7 +217,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   """
   def update_version(%Version{} = version, attrs) do
     version
-    |> Version.changeset(attrs)
+    |> Version.update_changeset(attrs)
     |> Repo.update()
   end
 
@@ -195,7 +247,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def change_version(%Version{} = version) do
-    Version.changeset(version, %{})
+    Version.update_changeset(version, %{})
   end
 
   alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser

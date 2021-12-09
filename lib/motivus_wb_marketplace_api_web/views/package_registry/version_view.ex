@@ -11,12 +11,15 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionView do
   end
 
   def render("version.json", %{version: version}) do
-    %{id: version.id,
+    %{
+      id: version.id,
       name: version.name,
       metadata: version.metadata,
       hash: version.hash,
       wasm_url: version.wasm_url,
       loader_url: version.loader_url,
-      data_url: version.data_url}
+      data_url: version.data_url,
+      inserted_at: version.inserted_at
+    }
   end
 end

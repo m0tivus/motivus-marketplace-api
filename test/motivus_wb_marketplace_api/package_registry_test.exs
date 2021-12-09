@@ -8,13 +8,13 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
     alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
 
     @valid_attrs %{
-      default_charge_schema: "some default_charge_schema",
+      default_charge_schema: "PER_EXECUTION",
       default_cost: 120.5,
       is_public: true,
-      name: "some name"
+      name: "package"
     }
     @update_attrs %{
-      default_charge_schema: "some updated default_charge_schema",
+      default_charge_schema: "PER_MINUTE",
       default_cost: 456.7,
       is_public: false,
       name: "some updated name"
@@ -33,10 +33,10 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
 
     test "create_algorithm/1 with valid data creates a algorithm" do
       assert {:ok, %Algorithm{} = algorithm} = PackageRegistry.create_algorithm(@valid_attrs)
-      assert algorithm.default_charge_schema == "some default_charge_schema"
+      assert algorithm.default_charge_schema == "PER_EXECUTION"
       assert algorithm.default_cost == 120.5
       assert algorithm.is_public == true
-      assert algorithm.name == "some name"
+      assert algorithm.name == "package"
     end
 
     test "create_algorithm/1 with invalid data returns error changeset" do
@@ -49,10 +49,10 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert {:ok, %Algorithm{} = algorithm} =
                PackageRegistry.update_algorithm(algorithm, @update_attrs)
 
-      assert algorithm.default_charge_schema == "some updated default_charge_schema"
+      assert algorithm.default_charge_schema == "PER_MINUTE"
       assert algorithm.default_cost == 456.7
       assert algorithm.is_public == false
-      assert algorithm.name == "some updated name"
+      assert algorithm.name == "package"
     end
 
     test "update_algorithm/2 with invalid data returns error changeset" do
@@ -80,10 +80,8 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
     alias MotivusWbMarketplaceApi.PackageRegistry.Version
 
     @valid_attrs %{
-      data_url: "some data_url",
-      hash: "some hash",
-      loader_url: "some loader_url",
-      metadata: %{
+      "hash" => "some hash",
+      "metadata" => %{
         "long_description" => "#README
         test",
         "short_description" => "test",
@@ -93,23 +91,24 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
         "upstream_url" => "https://github.com/test/test",
         "ignored" => "should be ignored"
       },
-      name: "some name",
-      wasm_url: "some wasm_url"
+      "name" => "1.0.0",
+      "package" => %Plug.Upload{
+        path: 'test/support/fixtures/package-1.0.0.zip',
+        filename: "package-1.0.0.zip"
+      }
     }
     @update_attrs %{
       data_url: "some updated data_url",
-      hash: "some updated hash",
       loader_url: "some updated loader_url",
-      metadata: %{},
-      name: "some updated name",
       wasm_url: "some updated wasm_url"
     }
     @invalid_attrs %{
-      data_url: nil,
       hash: nil,
-      loader_url: nil,
       metadata: nil,
       name: nil,
+      package: nil,
+      data_url: nil,
+      loader_url: nil,
       wasm_url: nil
     }
 
@@ -124,17 +123,16 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
     end
 
     test "create_version/1 with valid data creates a version" do
-      algorithm = algorithm_fixture()
+      algorithm = algorithm_fixture(%{name: "package"})
 
       assert {:ok, %Version{} = version} =
                PackageRegistry.create_version(
                  @valid_attrs
-                 |> Map.merge(%{algorithm_id: algorithm.id})
+                 |> Map.put("algorithm_id", algorithm.id)
+                 |> Map.put("algorithm", algorithm)
                )
 
-      assert version.data_url == "some data_url"
       assert version.hash == "some hash"
-      assert version.loader_url == "some loader_url"
 
       assert version.metadata == %{
                long_description: "#README
@@ -146,8 +144,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
                upstream_url: "https://github.com/test/test"
              }
 
-      assert version.name == "some name"
-      assert version.wasm_url == "some wasm_url"
+      assert version.name == "1.0.0"
       assert version.algorithm_id == algorithm.id
     end
 
@@ -159,10 +156,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       version = version_fixture()
       assert {:ok, %Version{} = version} = PackageRegistry.update_version(version, @update_attrs)
       assert version.data_url == "some updated data_url"
-      assert version.hash == "some updated hash"
       assert version.loader_url == "some updated loader_url"
-      assert version.metadata == %{}
-      assert version.name == "some updated name"
       assert version.wasm_url == "some updated wasm_url"
     end
 
