@@ -182,20 +182,26 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       |> Enum.map(fn path -> {to_string(path), to_string(path)} end)
       |> Enum.into(%{})
 
+    [_, _, uuid | _] = version.wasm_url |> to_string |> String.split("/")
+
     # TODO use client uuid hash instead of tmp
     with :ok <-
            paths
            |> Task.async_stream(upload_file, max_concurrency: 10)
            # TODO rm dir
-           |> Stream.run() do
-      {:ok,
-       Map.take(version, [:wasm_url, :loader_url, :data_url])
-       |> Enum.map(fn {k, v} ->
-         {k, "https://#{bucket}.s3.amazonaws.com/#{bucket}#{v |> to_string()}"}
-       end)
-       |> Enum.into(%{})}
+           |> Stream.run(),
+         File.rm_rf!("/tmp/" <> uuid) do
+      {:ok, version |> put_version_urls(bucket)}
     end
   end
+
+  defp put_version_urls(version, bucket),
+    do:
+      Map.take(version, [:wasm_url, :loader_url, :data_url])
+      |> Enum.map(fn {k, v} ->
+        {k, "https://#{bucket}.s3.amazonaws.com/#{bucket}#{v |> to_string()}"}
+      end)
+      |> Enum.into(%{})
 
   @doc """
   Updates a version.
