@@ -29,6 +29,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Version do
     |> validate_required([
       :name
     ])
+    |> unique_constraint(:name)
     |> validate_package_name(attrs)
     |> validate_package(attrs)
     |> validate_required([
