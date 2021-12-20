@@ -11,5 +11,6 @@ defmodule MotivusWbMarketplaceApi.Repo.Migrations.CreateAlgorithms do
       timestamps()
     end
 
+    create unique_index(:algorithms, [:name])
   end
 end

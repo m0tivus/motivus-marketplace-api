@@ -21,6 +21,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Algorithm do
     algorithm
     |> cast(attrs, [:name, :is_public, :default_cost, :default_charge_schema])
     |> validate_inclusion(:default_charge_schema, @charge_schemas)
+    |> unique_constraint(:name)
     |> validate_required([:name, :is_public, :default_cost, :default_charge_schema])
   end
 
