@@ -15,6 +15,6 @@ defmodule MotivusWbMarketplaceApi.Repo.Migrations.CreateVersions do
     end
 
     create index(:versions, [:algorithm_id])
-    create unique_index(:versions, [:name])
+    create unique_index(:versions, [:name, :algorithm_id])
   end
 end
