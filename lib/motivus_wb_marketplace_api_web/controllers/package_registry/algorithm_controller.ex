@@ -6,8 +6,8 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmController do
 
   action_fallback MotivusWbMarketplaceApiWeb.FallbackController
 
-  def index(conn, _params) do
-    algorithms = PackageRegistry.list_algorithms()
+  def index(conn, params) do
+    algorithms = PackageRegistry.list_algorithms(params)
     render(conn, "index.json", algorithms: algorithms)
   end
 
