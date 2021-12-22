@@ -18,6 +18,19 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionController do
     render(conn, "index.json", versions: versions)
   end
 
+  def create(conn, %{"version" => version_params, "package" => %Plug.Upload{} = package} = params)
+      when is_binary(version_params),
+      do:
+        create(
+          conn,
+          params
+          |> Map.put(
+            "version",
+            Jason.decode!(version_params)
+            |> Map.put("package", package)
+          )
+        )
+
   def create(conn, %{"version" => version_params, "algorithm_id" => algorithm_id}) do
     with {:ok, %{version_urls: %Version{} = version}} <-
            PackageRegistry.publish_version(

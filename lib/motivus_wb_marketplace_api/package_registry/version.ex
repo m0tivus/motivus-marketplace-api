@@ -29,7 +29,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Version do
     |> validate_required([
       :name
     ])
-    |> unique_constraint(:name)
+    |> unique_constraint(:name, name: :versions_name_algorithm_id_index)
     |> validate_package_name(attrs)
     |> validate_package(attrs)
     |> validate_required([
@@ -95,7 +95,9 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Version do
       |> Enum.map(fn {file_name, extension} -> file_name <> extension end)
       |> Enum.map(&String.to_charlist/1)
 
-    with {:ok, file_list} <- :zip.unzip(package.path, cwd: directory, file_list: file_whitelist) do
+    path = Path.absname(package.path) |> to_charlist
+
+    with {:ok, file_list} <- :zip.unzip(path, cwd: directory, file_list: file_whitelist) do
       file_list
       |> Enum.reduce(chset, fn file_path, chset_ ->
         path_string = file_path |> to_string

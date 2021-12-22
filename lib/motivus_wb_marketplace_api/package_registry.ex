@@ -19,7 +19,14 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       [%Algorithm{}, ...]
 
   """
-  def list_algorithms do
+  def list_algorithms(%{"name" => name}) do
+    Algorithm
+    |> preload(:versions)
+    |> where(name: ^name)
+    |> Repo.all()
+  end
+
+  def list_algorithms(_params) do
     Algorithm
     |> preload(:versions)
     |> Repo.all()
@@ -187,8 +194,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
     # TODO use client uuid hash instead of tmp
     with :ok <-
            paths
-           |> Task.async_stream(upload_file, max_concurrency: 10)
-           # TODO rm dir
+           |> Task.async_stream(upload_file, max_concurrency: 10, timeout: 30_000)
            |> Stream.run(),
          File.rm_rf!("/tmp/" <> uuid) do
       {:ok, version |> put_version_urls(bucket)}
