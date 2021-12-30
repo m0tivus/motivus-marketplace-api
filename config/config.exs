@@ -37,6 +37,19 @@ config :ex_aws, :s3,
   host: "wb-marketplace-test.s3.amazonaws.com",
   region: "us-east-1"
 
+config :motivus_wb_marketplace_api, MotivusWbMarketplaceApi.Account.Guardian,
+  issuer: "motivus_wb_marketplace_api",
+  secret_key: "ivmFeKzF+WdQVIv5aRHcACepNFPuS/oty3vF4ddW1Lgmpiq2okNMEAz4b2hzeMQ8"
+
+config :ueberauth, Ueberauth,
+  providers: [
+    github: {Ueberauth.Strategy.Github, [send_redirect_uri: false, default_scope: "user"]}
+  ]
+
+config :ueberauth, Ueberauth.Strategy.Github.OAuth,
+  client_id: {:system, "GITHUB_CLIENT_ID"},
+  client_secret: {:system, "GITHUB_CLIENT_SECRET"}
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

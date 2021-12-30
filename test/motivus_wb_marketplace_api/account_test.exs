@@ -6,8 +6,20 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
   describe "users" do
     alias MotivusWbMarketplaceApi.Account.User
 
-    @valid_attrs %{avatar_url: "some avatar_url", email: "some email", provider: "some provider", username: "some username", uuid: "7488a646-e31f-11e4-aace-600308960662"}
-    @update_attrs %{avatar_url: "some updated avatar_url", email: "some updated email", provider: "some updated provider", username: "some updated username", uuid: "7488a646-e31f-11e4-aace-600308960668"}
+    @valid_attrs %{
+      avatar_url: "some avatar_url",
+      email: "some email",
+      provider: "some provider",
+      username: "some username",
+      uuid: "7488a646-e31f-11e4-aace-600308960662"
+    }
+    @update_attrs %{
+      avatar_url: "some updated avatar_url",
+      email: "some updated email",
+      provider: "some updated provider",
+      username: "some updated username",
+      uuid: "7488a646-e31f-11e4-aace-600308960668"
+    }
     @invalid_attrs %{avatar_url: nil, email: nil, provider: nil, username: nil, uuid: nil}
 
     def user_fixture(attrs \\ %{}) do
@@ -27,6 +39,12 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
     test "get_user!/1 returns the user with given id" do
       user = user_fixture()
       assert Account.get_user!(user.id) == user
+    end
+
+    test "get_user_by_email!/1 returns the user with given email" do
+      user1 = user_fixture(%{email: "test@test.cl"})
+      user2 = user_fixture(%{email: "test2@test.cl"})
+      assert Account.get_user_by_email("test@test.cl") == user1
     end
 
     test "create_user/1 with valid data creates a user" do
@@ -97,7 +115,9 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
     end
 
     test "create_application_token/1 with valid data creates a application_token" do
-      assert {:ok, %ApplicationToken{} = application_token} = Account.create_application_token(@valid_attrs)
+      assert {:ok, %ApplicationToken{} = application_token} =
+               Account.create_application_token(@valid_attrs)
+
       assert application_token.valid == true
       assert application_token.value == "some value"
     end
@@ -108,21 +128,30 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
 
     test "update_application_token/2 with valid data updates the application_token" do
       application_token = application_token_fixture()
-      assert {:ok, %ApplicationToken{} = application_token} = Account.update_application_token(application_token, @update_attrs)
+
+      assert {:ok, %ApplicationToken{} = application_token} =
+               Account.update_application_token(application_token, @update_attrs)
+
       assert application_token.valid == false
       assert application_token.value == "some updated value"
     end
 
     test "update_application_token/2 with invalid data returns error changeset" do
       application_token = application_token_fixture()
-      assert {:error, %Ecto.Changeset{}} = Account.update_application_token(application_token, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Account.update_application_token(application_token, @invalid_attrs)
+
       assert application_token == Account.get_application_token!(application_token.id)
     end
 
     test "delete_application_token/1 deletes the application_token" do
       application_token = application_token_fixture()
       assert {:ok, %ApplicationToken{}} = Account.delete_application_token(application_token)
-      assert_raise Ecto.NoResultsError, fn -> Account.get_application_token!(application_token.id) end
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Account.get_application_token!(application_token.id)
+      end
     end
 
     test "change_application_token/1 returns a application_token changeset" do
