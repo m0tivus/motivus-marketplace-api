@@ -11,11 +11,14 @@ defmodule MotivusWbMarketplaceApiWeb.Account.UserView do
   end
 
   def render("user.json", %{user: user}) do
-    %{id: user.id,
+    %{
+      id: user.id,
       email: user.email,
+      name: user.name,
       username: user.username,
       avatar_url: user.avatar_url,
       provider: user.provider,
-      uuid: user.uuid}
+      uuid: user.uuid
+    }
   end
 end

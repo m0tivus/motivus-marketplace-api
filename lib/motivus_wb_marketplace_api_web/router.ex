@@ -5,8 +5,25 @@ defmodule MotivusWbMarketplaceApiWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :auth do
+    plug MotivusWbMarketplaceApi.Account.Pipeline
+  end
+
+  scope "/auth", MotivusWbMarketplaceApiWeb.Account do
+    pipe_through :api
+
+    get "/:provider", AuthController, :request
+    get "/:provider/callback", AuthController, :callback
+  end
+
   scope "/api", MotivusWbMarketplaceApiWeb do
     pipe_through :api
+
+    scope "/account", Account, as: :account do
+      pipe_through :auth
+      get "/user", UserController, :show
+      put "/user", UserController, :update
+    end
 
     scope "/package_registry", PackageRegistry, as: :package_registry do
       resources "/algorithms", AlgorithmController, as: :algorithm do

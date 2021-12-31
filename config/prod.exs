@@ -16,6 +16,9 @@ config :motivus_wb_marketplace_api, MotivusWbMarketplaceApiWeb.Endpoint,
 # Do not print debug messages in production
 config :logger, level: :info
 
+config :motivus_wb_marketplace_api,
+  spa_oauth_redirect_uri: System.get_env("SPA_OAUTH_REDIRECT_URI", "https://motivus.cl/auth")
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

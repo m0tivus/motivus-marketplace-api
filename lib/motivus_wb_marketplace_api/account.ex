@@ -37,6 +37,8 @@ defmodule MotivusWbMarketplaceApi.Account do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  def get_user_by_email(email), do: Repo.get_by(User, email: email)
+
   @doc """
   Creates a user.
 
@@ -69,7 +71,7 @@ defmodule MotivusWbMarketplaceApi.Account do
   """
   def update_user(%User{} = user, attrs) do
     user
-    |> User.changeset(attrs)
+    |> User.update_changeset(attrs)
     |> Repo.update()
   end
 

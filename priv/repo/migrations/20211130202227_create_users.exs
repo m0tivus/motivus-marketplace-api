@@ -4,6 +4,7 @@ defmodule MotivusWbMarketplaceApi.Repo.Migrations.CreateUsers do
   def change do
     create table(:users) do
       add :email, :string
+      add :name, :string
       add :username, :string
       add :avatar_url, :string
       add :provider, :string
@@ -12,5 +13,7 @@ defmodule MotivusWbMarketplaceApi.Repo.Migrations.CreateUsers do
       timestamps()
     end
 
+    create unique_index(:users, [:email])
+    create unique_index(:users, [:username])
   end
 end

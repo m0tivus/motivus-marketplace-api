@@ -55,3 +55,6 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :motivus_wb_marketplace_api,
+  spa_oauth_redirect_uri: System.get_env("SPA_OAUTH_REDIRECT_URI", "http://localhost:8000/auth")

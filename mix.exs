@@ -45,7 +45,10 @@ defmodule MotivusWbMarketplaceApi.MixProject do
       {:ex_aws_s3, "~> 2.3"},
       {:hackney, "~> 1.9"},
       {:sweet_xml, "~> 0.6"},
-      {:uuid, "~> 1.1"}
+      {:uuid, "~> 1.1"},
+      {:guardian, "~> 2.0"},
+      {:ueberauth_github, "~> 0.7"},
+      {:ueberauth_google, "~> 0.10"}
     ]
   end
 

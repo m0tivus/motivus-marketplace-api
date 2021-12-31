@@ -1,104 +1,58 @@
 defmodule MotivusWbMarketplaceApiWeb.Account.UserControllerTest do
   use MotivusWbMarketplaceApiWeb.ConnCase
 
-  alias MotivusWbMarketplaceApi.Account
+  import MotivusWbMarketplaceApiWeb.AuthControllerCase
+
   alias MotivusWbMarketplaceApi.Account.User
 
-  @create_attrs %{
-    avatar_url: "some avatar_url",
-    email: "some email",
-    provider: "some provider",
-    username: "some username",
-    uuid: "7488a646-e31f-11e4-aace-600308960662"
-  }
   @update_attrs %{
     avatar_url: "some updated avatar_url",
-    email: "some updated email",
-    provider: "some updated provider",
     username: "some updated username",
-    uuid: "7488a646-e31f-11e4-aace-600308960668"
+    name: "some updated name"
   }
   @invalid_attrs %{avatar_url: nil, email: nil, provider: nil, username: nil, uuid: nil}
-
-  def fixture(:user) do
-    {:ok, user} = Account.create_user(@create_attrs)
-    user
-  end
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  describe "index" do
-    test "lists all users", %{conn: conn} do
-      conn = get(conn, Routes.account_user_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
-    end
-  end
+  setup :with_auth
 
-  describe "create user" do
-    test "renders user when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.account_user_path(conn, :create), user: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
-
-      conn = get(conn, Routes.account_user_path(conn, :show, id))
+  describe "show user" do
+    test "renders current user", %{conn: conn, user: %User{id: id}} do
+      conn = get(conn, Routes.account_user_path(conn, :show))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "avatar_url" => "some avatar_url",
                "email" => "some email",
                "provider" => "some provider",
                "username" => "some username",
-               "uuid" => "7488a646-e31f-11e4-aace-600308960662"
+               "name" => "some name"
              } = json_response(conn, 200)["data"]
-    end
-
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.account_user_path(conn, :create), user: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
     end
   end
 
   describe "update user" do
-    setup [:create_user]
-
-    test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
-      conn = put(conn, Routes.account_user_path(conn, :update, user), user: @update_attrs)
+    test "renders user when data is valid", %{conn: conn, user: %User{id: id}} do
+      conn = put(conn, Routes.account_user_path(conn, :update), user: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
-      conn = get(conn, Routes.account_user_path(conn, :show, id))
+      conn = get(conn, Routes.account_user_path(conn, :show))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "avatar_url" => "some updated avatar_url",
-               "email" => "some updated email",
-               "provider" => "some updated provider",
+               "email" => "some email",
+               "provider" => "some provider",
                "username" => "some updated username",
-               "uuid" => "7488a646-e31f-11e4-aace-600308960668"
+               "name" => "some updated name"
              } = json_response(conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn, user: user} do
-      conn = put(conn, Routes.account_user_path(conn, :update, user), user: @invalid_attrs)
+    test "renders errors when data is invalid", %{conn: conn} do
+      conn = put(conn, Routes.account_user_path(conn, :update), user: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
-  end
-
-  describe "delete user" do
-    setup [:create_user]
-
-    test "deletes chosen user", %{conn: conn, user: user} do
-      conn = delete(conn, Routes.account_user_path(conn, :delete, user))
-      assert response(conn, 204)
-
-      assert_error_sent 404, fn ->
-        get(conn, Routes.account_user_path(conn, :show, user))
-      end
-    end
-  end
-
-  defp create_user(_) do
-    user = fixture(:user)
-    {:ok, user: user}
   end
 end
