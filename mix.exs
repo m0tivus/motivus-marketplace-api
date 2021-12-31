@@ -47,7 +47,8 @@ defmodule MotivusWbMarketplaceApi.MixProject do
       {:sweet_xml, "~> 0.6"},
       {:uuid, "~> 1.1"},
       {:guardian, "~> 2.0"},
-      {:ueberauth_github, "~> 0.7"}
+      {:ueberauth_github, "~> 0.7"},
+      {:ueberauth_google, "~> 0.10"}
     ]
   end
 

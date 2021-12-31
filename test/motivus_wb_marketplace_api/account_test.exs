@@ -1,6 +1,7 @@
 defmodule MotivusWbMarketplaceApi.AccountTest do
   use MotivusWbMarketplaceApi.DataCase
 
+  alias MotivusWbMarketplaceApi.Fixtures
   alias MotivusWbMarketplaceApi.Account
 
   describe "users" do
@@ -11,25 +12,17 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
       email: "some email",
       provider: "some provider",
       username: "some username",
+      name: "some name",
       uuid: "7488a646-e31f-11e4-aace-600308960662"
     }
     @update_attrs %{
       avatar_url: "some updated avatar_url",
-      email: "some updated email",
-      provider: "some updated provider",
       username: "some updated username",
-      uuid: "7488a646-e31f-11e4-aace-600308960668"
+      name: "some updated name"
     }
     @invalid_attrs %{avatar_url: nil, email: nil, provider: nil, username: nil, uuid: nil}
 
-    def user_fixture(attrs \\ %{}) do
-      {:ok, user} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Account.create_user()
-
-      user
-    end
+    def user_fixture(attrs \\ %{}), do: Fixtures.user_fixture(attrs)
 
     test "list_users/0 returns all users" do
       user = user_fixture()
@@ -42,8 +35,8 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
     end
 
     test "get_user_by_email!/1 returns the user with given email" do
-      user1 = user_fixture(%{email: "test@test.cl"})
-      user2 = user_fixture(%{email: "test2@test.cl"})
+      user1 = user_fixture(%{email: "test@test.cl", username: UUID.uuid4(:hex)})
+      _user2 = user_fixture(%{email: "test2@test.cl", username: UUID.uuid4(:hex)})
       assert Account.get_user_by_email("test@test.cl") == user1
     end
 
@@ -53,6 +46,7 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
       assert user.email == "some email"
       assert user.provider == "some provider"
       assert user.username == "some username"
+      assert user.name == "some name"
       assert user.uuid == "7488a646-e31f-11e4-aace-600308960662"
     end
 
@@ -61,13 +55,14 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
     end
 
     test "update_user/2 with valid data updates the user" do
-      user = user_fixture()
+      user = %{uuid: uuid} = user_fixture()
       assert {:ok, %User{} = user} = Account.update_user(user, @update_attrs)
       assert user.avatar_url == "some updated avatar_url"
-      assert user.email == "some updated email"
-      assert user.provider == "some updated provider"
+      assert user.email == "some email"
+      assert user.provider == "some provider"
       assert user.username == "some updated username"
-      assert user.uuid == "7488a646-e31f-11e4-aace-600308960668"
+      assert user.name == "some updated name"
+      assert user.uuid == uuid
     end
 
     test "update_user/2 with invalid data returns error changeset" do

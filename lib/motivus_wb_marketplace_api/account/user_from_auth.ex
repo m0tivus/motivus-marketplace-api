@@ -27,7 +27,6 @@ defmodule MotivusWbMarketplaceApi.Account.UserFromAuth do
         |> Map.put(:uuid, Ecto.UUID.bingenerate())
         |> Map.put(:last_sign_in, DateTime.utc_now())
         |> Account.create_user()
-        |> IO.inspect()
 
       user ->
         {:ok, user}
@@ -51,7 +50,6 @@ defmodule MotivusWbMarketplaceApi.Account.UserFromAuth do
     %{
       id: auth.uid,
       name: name_from_auth(auth),
-      username: username_from_auth(auth),
       avatar_url: avatar_from_auth(auth),
       email: auth.info.email,
       provider: Atom.to_string(auth.provider),
@@ -75,8 +73,6 @@ defmodule MotivusWbMarketplaceApi.Account.UserFromAuth do
       end
     end
   end
-
-  defp username_from_auth(auth), do: auth.info.nickname
 
   defp validate_pass(%{other: %{password: ""}}) do
     {:error, "Password required"}

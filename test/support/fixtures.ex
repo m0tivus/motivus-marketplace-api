@@ -1,6 +1,23 @@
 defmodule MotivusWbMarketplaceApi.Fixtures do
+  alias MotivusWbMarketplaceApi.Account
   alias MotivusWbMarketplaceApi.PackageRegistry
   alias MotivusWbMarketplaceApi.PackageRegistry.Version
+
+  def user_fixture(attrs \\ %{}) do
+    {:ok, user} =
+      attrs
+      |> Enum.into(%{
+        avatar_url: "some avatar_url",
+        email: "some email",
+        provider: "some provider",
+        username: "some username",
+        name: "some name",
+        uuid: "7488a646-e31f-11e4-aace-600308960662"
+      })
+      |> Account.create_user()
+
+    user
+  end
 
   def algorithm_fixture(attrs \\ %{}) do
     {:ok, algorithm} =
