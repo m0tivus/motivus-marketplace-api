@@ -3,7 +3,6 @@ defmodule MotivusWbMarketplaceApiWeb.Account.UserControllerTest do
 
   import MotivusWbMarketplaceApiWeb.AuthControllerCase
 
-  alias MotivusWbMarketplaceApi.Account
   alias MotivusWbMarketplaceApi.Account.User
 
   @update_attrs %{
@@ -20,7 +19,7 @@ defmodule MotivusWbMarketplaceApiWeb.Account.UserControllerTest do
   setup :with_auth
 
   describe "show user" do
-    test "renders current user", %{conn: conn, user: %User{id: id} = user} do
+    test "renders current user", %{conn: conn, user: %User{id: id}} do
       conn = get(conn, Routes.account_user_path(conn, :show))
 
       assert %{
@@ -35,7 +34,7 @@ defmodule MotivusWbMarketplaceApiWeb.Account.UserControllerTest do
   end
 
   describe "update user" do
-    test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
+    test "renders user when data is valid", %{conn: conn, user: %User{id: id}} do
       conn = put(conn, Routes.account_user_path(conn, :update), user: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
@@ -51,7 +50,7 @@ defmodule MotivusWbMarketplaceApiWeb.Account.UserControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn, user: user} do
+    test "renders errors when data is invalid", %{conn: conn} do
       conn = put(conn, Routes.account_user_path(conn, :update), user: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
