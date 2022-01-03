@@ -33,14 +33,14 @@ defmodule MotivusWbMarketplaceApi.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.17"},
-      {:phoenix_pubsub, "~> 1.1"},
+      {:phoenix, "~> 1.6.0"},
+      {:phoenix_pubsub, "~> 2.0"},
+      {:plug_cowboy, "~> 2.1"},
       {:phoenix_ecto, "~> 4.0"},
-      {:ecto_sql, "~> 3.1"},
+      {:ecto_sql, "~> 3.7.1"},
       {:postgrex, ">= 0.0.0"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"},
       {:ex_aws, "~> 2.2.8"},
       {:ex_aws_s3, "~> 2.3"},
       {:hackney, "~> 1.9"},
