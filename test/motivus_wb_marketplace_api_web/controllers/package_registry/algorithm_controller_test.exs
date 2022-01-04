@@ -1,31 +1,30 @@
 defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
   use MotivusWbMarketplaceApiWeb.ConnCase
 
+  import MotivusWbMarketplaceApiWeb.AuthControllerCase
+
   alias MotivusWbMarketplaceApi.PackageRegistry
   alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
   alias MotivusWbMarketplaceApi.Fixtures
 
   @create_attrs %{
-    default_charge_schema: "PER_EXECUTION",
-    default_cost: 120.5,
-    is_public: true,
-    name: "package"
+    "default_charge_schema" => "PER_EXECUTION",
+    "default_cost" => 120.5,
+    "is_public" => true,
+    "name" => "package"
   }
   @update_attrs %{
-    default_charge_schema: "PER_MINUTE",
-    default_cost: 456.7,
-    is_public: false
+    "default_charge_schema" => "PER_MINUTE",
+    "default_cost" => 456.7,
+    "is_public" => false
   }
   @invalid_attrs %{default_charge_schema: nil, default_cost: nil, is_public: nil, name: nil}
-
-  def fixture(:algorithm) do
-    {:ok, algorithm} = PackageRegistry.create_algorithm(@create_attrs)
-    algorithm
-  end
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
+
+  setup :with_auth
 
   describe "index" do
     test "lists all algorithms", %{conn: conn} do
@@ -45,7 +44,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
       conn = get(conn, Routes.package_registry_algorithm_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "default_charge_schema" => "PER_EXECUTION",
                "default_cost" => 120.5,
                "is_public" => true,
@@ -84,7 +83,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
       conn = get(conn, Routes.package_registry_algorithm_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "default_charge_schema" => "PER_MINUTE",
                "default_cost" => 456.7,
                "is_public" => false,
@@ -111,8 +110,8 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
     end
   end
 
-  defp create_algorithm(_) do
-    algorithm = fixture(:algorithm)
+  defp create_algorithm(%{user: %{id: user_id}}) do
+    algorithm = Fixtures.algorithm_fixture(%{"user_id" => user_id})
     {:ok, algorithm: algorithm}
   end
 end

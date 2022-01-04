@@ -3,6 +3,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmController do
 
   alias MotivusWbMarketplaceApi.PackageRegistry
   alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
+  alias MotivusWbMarketplaceApi.Account.Guardian
 
   action_fallback MotivusWbMarketplaceApiWeb.FallbackController
 
@@ -12,7 +13,13 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmController do
   end
 
   def create(conn, %{"algorithm" => algorithm_params}) do
-    with {:ok, %Algorithm{} = algorithm} <- PackageRegistry.create_algorithm(algorithm_params) do
+    %{id: user_id} = Guardian.Plug.current_resource(conn)
+
+    with {:ok, %Algorithm{} = algorithm} <-
+           PackageRegistry.create_algorithm(
+             algorithm_params
+             |> Enum.into(%{"user_id" => user_id})
+           ) do
       conn
       |> put_status(:created)
       |> put_resp_header(

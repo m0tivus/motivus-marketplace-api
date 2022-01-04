@@ -7,8 +7,10 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   import Ecto.Query, warn: false
   alias MotivusWbMarketplaceApi.Repo
+  alias Ecto.Multi
 
   alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
+  alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser
 
   @doc """
   Returns the list of algorithms.
@@ -19,16 +21,18 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       [%Algorithm{}, ...]
 
   """
+  def list_algorithms(params \\ %{})
+
   def list_algorithms(%{"name" => name}) do
     Algorithm
-    |> preload(:versions)
+    |> preload([:versions, :users, algorithm_users: [:user]])
     |> where(name: ^name)
     |> Repo.all()
   end
 
-  def list_algorithms(_params) do
+  def list_algorithms(%{}) do
     Algorithm
-    |> preload(:versions)
+    |> preload([:versions, :users, algorithm_users: [:user]])
     |> Repo.all()
   end
 
@@ -46,7 +50,8 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       ** (Ecto.NoResultsError)
 
   """
-  def get_algorithm!(id), do: Algorithm |> preload(:versions) |> Repo.get!(id)
+  def get_algorithm!(id),
+    do: Algorithm |> preload([:versions, :users, algorithm_users: [:user]]) |> Repo.get!(id)
 
   @doc """
   Creates a algorithm.
@@ -60,12 +65,26 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_algorithm(attrs \\ %{}) do
-    with {:ok, algorithm} <-
-           %Algorithm{}
-           |> Algorithm.create_changeset(attrs)
-           |> Repo.insert() do
-      {:ok, algorithm |> Repo.preload(:versions)}
+  def create_algorithm(attrs) do
+    with {:ok, %{algorithm: algorithm}} <-
+           Multi.new()
+           |> Multi.insert(
+             :algorithm,
+             %Algorithm{}
+             |> Algorithm.create_changeset(attrs)
+           )
+           |> Multi.insert(:owner, fn %{algorithm: algorithm} ->
+             %AlgorithmUser{}
+             |> AlgorithmUser.algorithm_owner_changeset(
+               attrs
+               |> Enum.into(%{"algorithm_id" => algorithm.id})
+             )
+           end)
+           |> Repo.transaction() do
+      {:ok, algorithm |> Repo.preload([:versions, :users, algorithm_users: [:user]])}
+    else
+      {:error, :algorithm, chset, _} -> {:error, chset}
+      e -> e
     end
   end
 
@@ -166,10 +185,10 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   end
 
   def publish_version(attrs \\ %{}) do
-    Ecto.Multi.new()
-    |> Ecto.Multi.insert(:version, %Version{} |> Version.create_changeset(attrs))
-    |> Ecto.Multi.run(:s3, fn _repo, %{version: version} -> upload_package(version) end)
-    |> Ecto.Multi.update(:version_urls, fn %{s3: links, version: version} ->
+    Multi.new()
+    |> Multi.insert(:version, %Version{} |> Version.create_changeset(attrs))
+    |> Multi.run(:s3, fn _repo, %{version: version} -> upload_package(version) end)
+    |> Multi.update(:version_urls, fn %{s3: links, version: version} ->
       version |> Version.update_changeset(links)
     end)
     |> Repo.transaction()
@@ -256,8 +275,6 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
     Version.update_changeset(version, %{})
   end
 
-  alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser
-
   @doc """
   Returns the list of algorithm_users.
 
@@ -268,7 +285,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def list_algorithm_users do
-    Repo.all(AlgorithmUser)
+    AlgorithmUser |> preload(:user) |> Repo.all()
   end
 
   @doc """
@@ -285,7 +302,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       ** (Ecto.NoResultsError)
 
   """
-  def get_algorithm_user!(id), do: Repo.get!(AlgorithmUser, id)
+  def get_algorithm_user!(id), do: AlgorithmUser |> preload(:user) |> Repo.get!(id)
 
   @doc """
   Creates a algorithm_user.
@@ -300,9 +317,12 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def create_algorithm_user(attrs \\ %{}) do
-    %AlgorithmUser{}
-    |> AlgorithmUser.changeset(attrs)
-    |> Repo.insert()
+    with {:ok, algorithm_user} <-
+           %AlgorithmUser{}
+           |> AlgorithmUser.changeset(attrs)
+           |> Repo.insert() do
+      {:ok, algorithm_user |> Repo.preload(:user)}
+    end
   end
 
   @doc """
@@ -318,9 +338,12 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def update_algorithm_user(%AlgorithmUser{} = algorithm_user, attrs) do
-    algorithm_user
-    |> AlgorithmUser.changeset(attrs)
-    |> Repo.update()
+    with {:ok, algorithm_user} <-
+           algorithm_user
+           |> AlgorithmUser.changeset(attrs)
+           |> Repo.update() do
+      {:ok, algorithm_user |> Repo.preload(:user)}
+    end
   end
 
   @doc """

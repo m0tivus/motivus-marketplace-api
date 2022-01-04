@@ -17,10 +17,9 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
     package: nil
   }
 
-  def fixture(:version), do: Fixtures.version_fixture()
-
   setup %{conn: conn} do
-    algorithm = Fixtures.algorithm_fixture(%{name: "package"})
+    algorithm = Fixtures.algorithm_fixture(%{"name" => "package"})
+
     {:ok, conn: put_req_header(conn, "accept", "application/json"), algorithm: algorithm}
   end
 
@@ -43,7 +42,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
       conn = get(conn, Routes.package_registry_algorithm_version_path(conn, :show, algorithm, id))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "hash" => nil,
                "metadata" => %{},
                "name" => "1.0.0",
@@ -96,8 +95,9 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
     end
   end
 
-  defp create_version(_) do
-    version = fixture(:version)
+  defp create_version(%{algorithm: %{id: algorithm_id}}) do
+    version = Fixtures.version_fixture(%{"algorithm_id" => algorithm_id})
+
     {:ok, version: version}
   end
 end

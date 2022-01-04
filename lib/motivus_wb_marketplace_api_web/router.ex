@@ -6,7 +6,11 @@ defmodule MotivusWbMarketplaceApiWeb.Router do
   end
 
   pipeline :auth do
-    plug MotivusWbMarketplaceApi.Account.Pipeline
+    plug MotivusWbMarketplaceApi.Account.EnsureAuthPipeline
+  end
+
+  pipeline :maybe_auth do
+    plug MotivusWbMarketplaceApi.Account.MaybeAuthPipeline
   end
 
   scope "/auth", MotivusWbMarketplaceApiWeb.Account do
@@ -25,7 +29,10 @@ defmodule MotivusWbMarketplaceApiWeb.Router do
       put "/user", UserController, :update
     end
 
+    pipe_through :maybe_auth
+
     scope "/package_registry", PackageRegistry, as: :package_registry do
+      # TODO auth
       resources "/algorithms", AlgorithmController, as: :algorithm do
         resources "/versions", VersionController
       end

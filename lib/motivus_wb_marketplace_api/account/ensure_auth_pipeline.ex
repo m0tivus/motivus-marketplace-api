@@ -1,4 +1,4 @@
-defmodule MotivusWbMarketplaceApi.Account.Pipeline do
+defmodule MotivusWbMarketplaceApi.Account.EnsureAuthPipeline do
   use Guardian.Plug.Pipeline,
     otp_app: :motivus_wb_marketplace_api,
     error_handler: MotivusWbMarketplaceApi.Account.ErrorHandler,
