@@ -3,7 +3,6 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
 
   import MotivusWbMarketplaceApiWeb.AuthControllerCase
 
-  alias MotivusWbMarketplaceApi.PackageRegistry
   alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
   alias MotivusWbMarketplaceApi.Fixtures
 
@@ -89,6 +88,18 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
                "is_public" => false,
                "name" => "package"
              } = json_response(conn, 200)["data"]
+    end
+
+    test "renders error when user is not owner", %{algorithm: algorithm} = context do
+      unrelated_user = Fixtures.user_fixture()
+      {:ok, %{conn: conn}} = log_in_user(context, unrelated_user)
+
+      conn =
+        put(conn, Routes.package_registry_algorithm_path(conn, :update, algorithm),
+          algorithm: @update_attrs
+        )
+
+      assert response(conn, 405)
     end
 
     test "renders errors when data is invalid", %{conn: conn, algorithm: algorithm} do

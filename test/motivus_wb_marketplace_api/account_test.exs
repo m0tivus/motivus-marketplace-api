@@ -55,8 +55,14 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
     end
 
     test "update_user/2 with valid data updates the user" do
-      user = %{uuid: uuid} = user_fixture()
-      assert {:ok, %User{} = user} = Account.update_user(user, @update_attrs)
+      user = %{uuid: uuid} = user_fixture(%{email: "some email"})
+
+      assert {:ok, %User{} = user} =
+               Account.update_user(
+                 user,
+                 @update_attrs |> Enum.into(%{username: "some updated username"})
+               )
+
       assert user.avatar_url == "some updated avatar_url"
       assert user.email == "some email"
       assert user.provider == "some provider"

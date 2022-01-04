@@ -1,6 +1,8 @@
 defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
   use MotivusWbMarketplaceApiWeb.ConnCase
 
+  import MotivusWbMarketplaceApiWeb.AuthControllerCase
+
   alias MotivusWbMarketplaceApi.Fixtures
 
   @create_attrs %{
@@ -17,8 +19,10 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
     package: nil
   }
 
-  setup %{conn: conn} do
-    algorithm = Fixtures.algorithm_fixture(%{"name" => "package"})
+  setup :with_auth
+
+  setup %{conn: conn, user: user} do
+    algorithm = Fixtures.algorithm_fixture(%{"name" => "package", "user_id" => user.id})
 
     {:ok, conn: put_req_header(conn, "accept", "application/json"), algorithm: algorithm}
   end
@@ -51,6 +55,35 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
                "wasm_url" => "https://" <> _linkw,
                "inserted_at" => _date
              } = json_response(conn, 200)["data"]
+    end
+
+    test "renders errors when user has no permissions", %{algorithm: algorithm} = context do
+      unrelated_user = Fixtures.user_fixture()
+      {:ok, %{conn: conn}} = log_in_user(context, unrelated_user)
+
+      conn =
+        post(conn, Routes.package_registry_algorithm_version_path(conn, :create, algorithm),
+          version: @create_attrs
+        )
+
+      assert response(conn, 405)
+
+      just_user = Fixtures.user_fixture()
+
+      Fixtures.algorithm_user_fixture(%{
+        "algorithm_id" => algorithm.id,
+        "user_id" => just_user.id,
+        "role" => "USER"
+      })
+
+      {:ok, %{conn: conn}} = log_in_user(context, just_user)
+
+      conn =
+        post(conn, Routes.package_registry_algorithm_version_path(conn, :create, algorithm),
+          version: @create_attrs
+        )
+
+      assert response(conn, 405)
     end
 
     test "renders errors when data is invalid", %{conn: conn, algorithm: algorithm} do

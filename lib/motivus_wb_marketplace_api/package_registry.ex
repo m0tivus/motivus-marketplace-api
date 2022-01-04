@@ -304,6 +304,13 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   """
   def get_algorithm_user!(id), do: AlgorithmUser |> preload(:user) |> Repo.get!(id)
 
+  def get_algorithm_user!(algorithm_id, user_id),
+    do:
+      AlgorithmUser
+      |> preload(:user)
+      |> where(algorithm_id: ^algorithm_id, user_id: ^user_id)
+      |> Repo.one()
+
   @doc """
   Creates a algorithm_user.
 

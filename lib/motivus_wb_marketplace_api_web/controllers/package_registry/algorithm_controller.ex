@@ -4,6 +4,9 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmController do
   alias MotivusWbMarketplaceApi.PackageRegistry
   alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
   alias MotivusWbMarketplaceApi.Account.Guardian
+  alias MotivusWbMarketplaceApiWeb.Plugs.AlgorithmUserRolePlug
+
+  plug AlgorithmUserRolePlug, [must_be: ["OWNER"]] when action in [:update]
 
   action_fallback MotivusWbMarketplaceApiWeb.FallbackController
 

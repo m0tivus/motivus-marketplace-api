@@ -218,6 +218,13 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert PackageRegistry.get_algorithm_user!(algorithm_user.id) == algorithm_user
     end
 
+    test "get_algorithm_user!/2 returns the algorithm_user with given algorithm_id and user_id" do
+      algorithm = algorithm_fixture(%{"name" => "unused"})
+      _algorithm_user = algorithm_user_fixture(%{"algorithm_id" => algorithm.id})
+      %{user_id: user_id, algorithm_id: algorithm_id} = algorithm_user = algorithm_user_fixture()
+      assert PackageRegistry.get_algorithm_user!(algorithm_id, user_id) == algorithm_user
+    end
+
     test "create_algorithm_user/1 with valid data creates a algorithm_user" do
       user = user_fixture()
       algorithm = algorithm_fixture()

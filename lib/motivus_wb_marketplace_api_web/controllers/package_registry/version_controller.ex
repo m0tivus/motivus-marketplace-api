@@ -3,6 +3,9 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionController do
 
   alias MotivusWbMarketplaceApi.PackageRegistry
   alias MotivusWbMarketplaceApi.PackageRegistry.Version
+  alias MotivusWbMarketplaceApiWeb.Plugs.AlgorithmUserRolePlug
+
+  plug AlgorithmUserRolePlug, [must_be: ["OWNER", "MAINTAINER"]] when action in [:create]
 
   action_fallback MotivusWbMarketplaceApiWeb.FallbackController
 
