@@ -11,9 +11,13 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmUserView do
   end
 
   def render("algorithm_user.json", %{algorithm_user: algorithm_user}) do
-    %{id: algorithm_user.id,
+    %{
+      id: algorithm_user.id,
       role: algorithm_user.role,
       cost: algorithm_user.cost,
-      charge_schema: algorithm_user.charge_schema}
+      charge_schema: algorithm_user.charge_schema,
+      user_id: algorithm_user.user_id,
+      algorithm_id: algorithm_user.algorithm_id
+    }
   end
 end

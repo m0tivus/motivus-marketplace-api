@@ -5,6 +5,9 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser do
   alias MotivusWbMarketplaceApi.Account.User
   alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
 
+  @roles ~w(USER MAINTAINER OWNER)
+  @charge_schemas ~w(PER_EXECUTION PER_MINUTE)
+
   schema "algorithm_users" do
     field :charge_schema, :string
     field :cost, :float
@@ -17,11 +20,22 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser do
   end
 
   @doc false
-  def changeset(algorithm_user, attrs) do
+  def create_changeset(algorithm_user, attrs) do
     algorithm_user
     |> cast(attrs, [:role, :cost, :charge_schema, :algorithm_id, :user_id])
     |> validate_required([:role, :cost, :charge_schema, :algorithm_id, :user_id])
+    |> validate_inclusion(:role, @roles)
+    |> validate_inclusion(:charge_schema, @charge_schemas)
     |> unique_constraint(:user_id, name: :algorithm_users_algorithm_id_user_id_index)
+  end
+
+  @doc false
+  def update_changeset(algorithm_user, attrs) do
+    algorithm_user
+    |> cast(attrs, [:role, :cost, :charge_schema])
+    |> validate_required([:role, :cost, :charge_schema])
+    |> validate_inclusion(:role, @roles)
+    |> validate_inclusion(:charge_schema, @charge_schemas)
   end
 
   @doc false
