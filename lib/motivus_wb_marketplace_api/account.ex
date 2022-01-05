@@ -39,6 +39,21 @@ defmodule MotivusWbMarketplaceApi.Account do
 
   def get_user_by_email(email), do: Repo.get_by(User, email: email)
 
+  def find_user!(email_or_username),
+    do:
+      User
+      |> where(email: ^email_or_username)
+      |> or_where(username: ^email_or_username)
+      |> Repo.one!()
+
+  def user_finder_parser(attrs) do
+    types = %{username_or_email: :string}
+
+    {%{}, types}
+    |> Ecto.Changeset.cast(attrs, Map.keys(types))
+    |> Ecto.Changeset.validate_required(:username_or_email)
+  end
+
   @doc """
   Creates a user.
 
@@ -119,6 +134,9 @@ defmodule MotivusWbMarketplaceApi.Account do
     Repo.all(ApplicationToken)
   end
 
+  def list_application_tokens(user_id),
+    do: ApplicationToken |> where(user_id: ^user_id) |> Repo.all()
+
   @doc """
   Gets a single application_token.
 
@@ -134,6 +152,9 @@ defmodule MotivusWbMarketplaceApi.Account do
 
   """
   def get_application_token!(id), do: Repo.get!(ApplicationToken, id)
+
+  def get_application_token_from_value!(value),
+    do: ApplicationToken |> where(value: ^value) |> Repo.one!()
 
   @doc """
   Creates a application_token.
@@ -167,7 +188,7 @@ defmodule MotivusWbMarketplaceApi.Account do
   """
   def update_application_token(%ApplicationToken{} = application_token, attrs) do
     application_token
-    |> ApplicationToken.changeset(attrs)
+    |> ApplicationToken.update_changeset(attrs)
     |> Repo.update()
   end
 
@@ -197,6 +218,6 @@ defmodule MotivusWbMarketplaceApi.Account do
 
   """
   def change_application_token(%ApplicationToken{} = application_token) do
-    ApplicationToken.changeset(application_token, %{})
+    ApplicationToken.update_changeset(application_token, %{})
   end
 end

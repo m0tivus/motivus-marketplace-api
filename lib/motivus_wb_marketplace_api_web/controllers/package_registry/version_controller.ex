@@ -1,5 +1,6 @@
 defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionController do
   use MotivusWbMarketplaceApiWeb, :controller
+  use MotivusWbMarketplaceApiWeb.Plugs.RelationLoaderPlug
 
   alias MotivusWbMarketplaceApi.PackageRegistry
   alias MotivusWbMarketplaceApi.PackageRegistry.Version
@@ -10,11 +11,6 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionController do
   action_fallback MotivusWbMarketplaceApiWeb.FallbackController
 
   plug :load_algorithm
-
-  defp load_algorithm(conn, _) do
-    algorithm = PackageRegistry.get_algorithm!(conn.params["algorithm_id"])
-    assign(conn, :algorithm, algorithm)
-  end
 
   def index(conn, _params) do
     versions = PackageRegistry.list_versions()

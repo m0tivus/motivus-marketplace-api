@@ -11,8 +11,11 @@ defmodule MotivusWbMarketplaceApiWeb.Account.ApplicationTokenView do
   end
 
   def render("application_token.json", %{application_token: application_token}) do
-    %{id: application_token.id,
+    %{
+      id: application_token.id,
       value: application_token.value,
-      valid: application_token.valid}
+      valid: application_token.valid,
+      description: application_token.description
+    }
   end
 end

@@ -25,16 +25,24 @@ defmodule MotivusWbMarketplaceApiWeb.Router do
 
     scope "/account", Account, as: :account do
       pipe_through :auth
+
       get "/user", UserController, :show
       put "/user", UserController, :update
+
+      resources "/application_tokens", ApplicationTokenController
     end
 
     pipe_through :maybe_auth
 
     scope "/package_registry", PackageRegistry, as: :package_registry do
-      # TODO auth
+      # TODO: public and private
       resources "/algorithms", AlgorithmController, as: :algorithm do
+        # TODO: personal_access_token -> push
+        # TODO: application_tokens -> fetch
         resources "/versions", VersionController
+
+        pipe_through :auth
+        resources "/users", AlgorithmUserController
       end
     end
   end

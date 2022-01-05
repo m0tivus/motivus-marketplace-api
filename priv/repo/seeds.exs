@@ -13,17 +13,31 @@
 alias MotivusWbMarketplaceApi.PackageRegistry
 alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
 alias MotivusWbMarketplaceApi.PackageRegistry.Version
+alias MotivusWbMarketplaceApi.Account.User
+alias MotivusWbMarketplaceApi.Account
+
+{:ok, %User{id: user_id}} =
+  %{
+    avatar_url: "some avatar_url",
+    email: "user@#{System.unique_integer()}.com",
+    provider: "some provider",
+    username: "username#{System.unique_integer()}",
+    name: "some name",
+    uuid: "7488a646-e31f-11e4-aace-600308960662"
+  }
+  |> Account.create_user()
 
 {:ok, %Algorithm{id: algorithm_id} = algorithm} =
   %{
-    default_charge_schema: "PER_EXECUTION",
-    default_cost: 120.5,
-    is_public: true,
-    name: "package"
+    "default_charge_schema" => "PER_EXECUTION",
+    "default_cost" => 120.5,
+    "is_public" => true,
+    "name" => "package",
+    "user_id" => user_id
   }
   |> PackageRegistry.create_algorithm()
 
-{:ok, %{version_urls: %Version{} = version}} =
+{:ok, %{version_urls: %Version{}}} =
   %{
     "algorithm_id" => algorithm_id,
     "algorithm" => algorithm,
@@ -39,14 +53,15 @@ alias MotivusWbMarketplaceApi.PackageRegistry.Version
 
 {:ok, %Algorithm{id: algorithm_id} = algorithm} =
   %{
-    default_charge_schema: "PER_EXECUTION",
-    default_cost: 120.5,
-    is_public: true,
-    name: "traveling-salesman"
+    "default_charge_schema" => "PER_EXECUTION",
+    "default_cost" => 120.5,
+    "is_public" => true,
+    "name" => "traveling-salesman",
+    "user_id" => user_id
   }
   |> PackageRegistry.create_algorithm()
 
-{:ok, %{version_urls: %Version{} = version}} =
+{:ok, %{version_urls: %Version{}}} =
   %{
     "algorithm_id" => algorithm_id,
     "algorithm" => algorithm,
@@ -71,14 +86,15 @@ alias MotivusWbMarketplaceApi.PackageRegistry.Version
 
 {:ok, %Algorithm{id: algorithm_id} = algorithm} =
   %{
-    default_charge_schema: "PER_MINUTE",
-    default_cost: 1.5,
-    is_public: true,
-    name: "sii-scraper"
+    "default_charge_schema" => "PER_MINUTE",
+    "default_cost" => 1.5,
+    "is_public" => true,
+    "name" => "sii-scraper",
+    "user_id" => user_id
   }
   |> PackageRegistry.create_algorithm()
 
-{:ok, %{version_urls: %Version{} = version}} =
+{:ok, %{version_urls: %Version{}}} =
   %{
     "algorithm_id" => algorithm_id,
     "algorithm" => algorithm,

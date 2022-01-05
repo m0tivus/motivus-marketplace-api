@@ -1,5 +1,8 @@
 defmodule MotivusWbMarketplaceApi.Account.Guardian do
-  use Guardian, otp_app: :motivus_wb_marketplace_api
+  use Guardian,
+    otp_app: :motivus_wb_marketplace_api,
+    token_module: MotivusWbMarketplaceApi.Account.JwtOrMwbt
+
   alias MotivusWbMarketplaceApi.Account
 
   def subject_for_token(%{id: id}, _claims) do

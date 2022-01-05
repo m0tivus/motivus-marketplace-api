@@ -326,7 +326,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   def create_algorithm_user(attrs \\ %{}) do
     with {:ok, algorithm_user} <-
            %AlgorithmUser{}
-           |> AlgorithmUser.changeset(attrs)
+           |> AlgorithmUser.create_changeset(attrs)
            |> Repo.insert() do
       {:ok, algorithm_user |> Repo.preload(:user)}
     end
@@ -347,7 +347,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   def update_algorithm_user(%AlgorithmUser{} = algorithm_user, attrs) do
     with {:ok, algorithm_user} <-
            algorithm_user
-           |> AlgorithmUser.changeset(attrs)
+           |> AlgorithmUser.update_changeset(attrs)
            |> Repo.update() do
       {:ok, algorithm_user |> Repo.preload(:user)}
     end
@@ -379,6 +379,6 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def change_algorithm_user(%AlgorithmUser{} = algorithm_user) do
-    AlgorithmUser.changeset(algorithm_user, %{})
+    AlgorithmUser.create_changeset(algorithm_user, %{})
   end
 end

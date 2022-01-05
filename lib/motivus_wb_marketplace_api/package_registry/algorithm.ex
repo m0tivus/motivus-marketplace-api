@@ -4,7 +4,6 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Algorithm do
   alias MotivusWbMarketplaceApi.PackageRegistry.Version
   alias MotivusWbMarketplaceApi.PackageRegistry.User
   alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser
-  alias MotivusWbMarketplaceApi.Account.User
 
   @charge_schemas ~w(PER_EXECUTION PER_MINUTE)
   @create_attrs ~w(name is_public default_cost default_charge_schema)a

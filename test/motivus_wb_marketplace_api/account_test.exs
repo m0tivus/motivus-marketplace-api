@@ -1,7 +1,7 @@
 defmodule MotivusWbMarketplaceApi.AccountTest do
   use MotivusWbMarketplaceApi.DataCase
 
-  alias MotivusWbMarketplaceApi.Fixtures
+  import MotivusWbMarketplaceApi.Fixtures
   alias MotivusWbMarketplaceApi.Account
 
   describe "users" do
@@ -22,11 +22,9 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
     }
     @invalid_attrs %{avatar_url: nil, email: nil, provider: nil, username: nil, uuid: nil}
 
-    def user_fixture(attrs \\ %{}), do: Fixtures.user_fixture(attrs)
-
     test "list_users/0 returns all users" do
       user = user_fixture()
-      assert Account.list_users() == [user]
+      assert Enum.member?(Account.list_users(), user)
     end
 
     test "get_user!/1 returns the user with given id" do
@@ -92,22 +90,27 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
   describe "application_tokens" do
     alias MotivusWbMarketplaceApi.Account.ApplicationToken
 
-    @valid_attrs %{valid: true, value: "some value"}
-    @update_attrs %{valid: false, value: "some updated value"}
-    @invalid_attrs %{valid: nil, value: nil}
-
-    def application_token_fixture(attrs \\ %{}) do
-      {:ok, application_token} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Account.create_application_token()
-
-      application_token
-    end
+    @valid_attrs %{
+      "valid" => true,
+      "value" => "some value",
+      "description" => "some description"
+    }
+    @update_attrs %{
+      "valid" => false,
+      "value" => "some updated value",
+      "description" => "some updated description"
+    }
+    @invalid_attrs %{valid: nil, value: nil, description: nil}
 
     test "list_application_tokens/0 returns all application_tokens" do
       application_token = application_token_fixture()
       assert Account.list_application_tokens() == [application_token]
+    end
+
+    test "list_application_tokens/1 returns all application_tokens from user" do
+      application_token = application_token_fixture()
+      _application_token = application_token_fixture()
+      assert Account.list_application_tokens(application_token.user_id) == [application_token]
     end
 
     test "get_application_token!/1 returns the application_token with given id" do
@@ -115,12 +118,24 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
       assert Account.get_application_token!(application_token.id) == application_token
     end
 
+    test "get_application_token_from_value!/1 returns the application_token with given id" do
+      application_token = application_token_fixture()
+
+      assert Account.get_application_token_from_value!(application_token.value) ==
+               application_token
+    end
+
     test "create_application_token/1 with valid data creates a application_token" do
-      assert {:ok, %ApplicationToken{} = application_token} =
-               Account.create_application_token(@valid_attrs)
+      user = user_fixture()
+
+      assert {:ok, %ApplicationToken{value: value} = application_token} =
+               Account.create_application_token(
+                 @valid_attrs
+                 |> Enum.into(%{"user_id" => user.id})
+               )
 
       assert application_token.valid == true
-      assert application_token.value == "some value"
+      assert application_token.value == value
     end
 
     test "create_application_token/1 with invalid data returns error changeset" do
@@ -128,13 +143,13 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
     end
 
     test "update_application_token/2 with valid data updates the application_token" do
-      application_token = application_token_fixture()
+      %{value: value} = application_token = application_token_fixture()
 
       assert {:ok, %ApplicationToken{} = application_token} =
                Account.update_application_token(application_token, @update_attrs)
 
       assert application_token.valid == false
-      assert application_token.value == "some updated value"
+      assert application_token.value == value
     end
 
     test "update_application_token/2 with invalid data returns error changeset" do

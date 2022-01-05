@@ -19,6 +19,26 @@ defmodule MotivusWbMarketplaceApi.Fixtures do
     user
   end
 
+  def application_token_fixture(attrs \\ %{}) do
+    user =
+      case attrs do
+        %{"user_id" => user_id} -> Account.get_user!(user_id)
+        _ -> user_fixture()
+      end
+
+    {:ok, application_token} =
+      attrs
+      |> Enum.into(%{
+        "valid" => true,
+        "value" => "some value",
+        "user_id" => user.id,
+        "description" => "some description"
+      })
+      |> Account.create_application_token()
+
+    application_token
+  end
+
   def algorithm_fixture(attrs \\ %{}) do
     user =
       case attrs do
