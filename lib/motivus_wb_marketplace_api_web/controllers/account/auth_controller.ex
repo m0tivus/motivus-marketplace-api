@@ -28,7 +28,6 @@ defmodule MotivusWbMarketplaceApiWeb.Account.AuthController do
     redirect(conn,
       external:
         Application.get_env(:motivus_wb_marketplace_api, :spa_oauth_redirect_uri) <>
-          "/" <>
           URI.encode_query(%{"token" => token})
     )
   end
