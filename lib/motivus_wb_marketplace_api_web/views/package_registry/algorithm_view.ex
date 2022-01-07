@@ -21,8 +21,8 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmView do
       id: algorithm.id,
       name: algorithm.name,
       is_public: algorithm.is_public,
-      default_cost: algorithm.default_cost,
-      default_charge_schema: algorithm.default_charge_schema,
+      cost: algorithm.cost,
+      charge_schema: algorithm.charge_schema,
       inserted_at: algorithm.inserted_at,
       versions: render_many(algorithm.versions, VersionView, "version_safe.json")
     }

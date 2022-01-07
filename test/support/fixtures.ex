@@ -49,8 +49,8 @@ defmodule MotivusWbMarketplaceApi.Fixtures do
     {:ok, algorithm} =
       attrs
       |> Enum.into(%{
-        "default_charge_schema" => "PER_EXECUTION",
-        "default_cost" => 120.5,
+        "charge_schema" => "PER_EXECUTION",
+        "cost" => 120.5,
         "is_public" => true,
         "name" => "package",
         "user_id" => user.id

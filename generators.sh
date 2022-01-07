@@ -1,8 +1,8 @@
 mix phx.gen.json PackageRegistry Algorithm algorithms --web PackageRegistry \
   name:string \
   is_public:boolean \
-  default_cost:float \
-  default_charge_schema:string
+  cost:float \
+  charge_schema:string
 sleep 2
 
 mix phx.gen.json PackageRegistry Version versions --web PackageRegistry \

@@ -8,18 +8,18 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
     alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
 
     @valid_attrs %{
-      "default_charge_schema" => "PER_EXECUTION",
-      "default_cost" => 120.5,
+      "charge_schema" => "PER_EXECUTION",
+      "cost" => 120.5,
       "is_public" => true,
       "name" => "package"
     }
     @update_attrs %{
-      "default_charge_schema" => "PER_MINUTE",
-      "default_cost" => 456.7,
+      "charge_schema" => "PER_MINUTE",
+      "cost" => 456.7,
       "is_public" => false,
       "name" => "some updated name"
     }
-    @invalid_attrs %{default_charge_schema: nil, default_cost: nil, is_public: nil, name: nil}
+    @invalid_attrs %{charge_schema: nil, cost: nil, is_public: nil, name: nil}
 
     test "list_algorithms/0 returns all algorithms" do
       algorithm = algorithm_fixture()
@@ -77,8 +77,8 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
                role: "OWNER"
              } = algorithm_user
 
-      assert algorithm.default_charge_schema == "PER_EXECUTION"
-      assert algorithm.default_cost == 120.5
+      assert algorithm.charge_schema == "PER_EXECUTION"
+      assert algorithm.cost == 120.5
       assert algorithm.is_public == true
       assert algorithm.name == "package"
       assert algorithm.algorithm_users == [algorithm_user]
@@ -94,8 +94,8 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert {:ok, %Algorithm{} = algorithm} =
                PackageRegistry.update_algorithm(algorithm, @update_attrs)
 
-      assert algorithm.default_charge_schema == "PER_MINUTE"
-      assert algorithm.default_cost == 456.7
+      assert algorithm.charge_schema == "PER_MINUTE"
+      assert algorithm.cost == 456.7
       assert algorithm.is_public == false
       assert algorithm.name == "package"
     end

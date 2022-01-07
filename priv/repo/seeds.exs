@@ -29,8 +29,8 @@ alias MotivusWbMarketplaceApi.Account
 
 {:ok, %Algorithm{id: algorithm_id} = algorithm} =
   %{
-    "default_charge_schema" => "PER_EXECUTION",
-    "default_cost" => 120.5,
+    "charge_schema" => "PER_EXECUTION",
+    "cost" => 120.5,
     "is_public" => true,
     "name" => "package",
     "user_id" => user_id
@@ -53,8 +53,8 @@ alias MotivusWbMarketplaceApi.Account
 
 {:ok, %Algorithm{id: algorithm_id} = algorithm} =
   %{
-    "default_charge_schema" => "PER_EXECUTION",
-    "default_cost" => 120.5,
+    "charge_schema" => "PER_EXECUTION",
+    "cost" => 120.5,
     "is_public" => true,
     "name" => "traveling-salesman",
     "user_id" => user_id
@@ -86,8 +86,8 @@ alias MotivusWbMarketplaceApi.Account
 
 {:ok, %Algorithm{id: algorithm_id} = algorithm} =
   %{
-    "default_charge_schema" => "PER_MINUTE",
-    "default_cost" => 1.5,
+    "charge_schema" => "PER_MINUTE",
+    "cost" => 1.5,
     "is_public" => true,
     "name" => "sii-scraper",
     "user_id" => user_id

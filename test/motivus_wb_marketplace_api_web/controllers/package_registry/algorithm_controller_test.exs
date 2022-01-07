@@ -7,17 +7,17 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
   import MotivusWbMarketplaceApi.Fixtures
 
   @create_attrs %{
-    "default_charge_schema" => "PER_EXECUTION",
-    "default_cost" => 120.5,
+    "charge_schema" => "PER_EXECUTION",
+    "cost" => 120.5,
     "is_public" => true,
     "name" => "package"
   }
   @update_attrs %{
-    "default_charge_schema" => "PER_MINUTE",
-    "default_cost" => 456.7,
+    "charge_schema" => "PER_MINUTE",
+    "cost" => 456.7,
     "is_public" => false
   }
-  @invalid_attrs %{default_charge_schema: nil, default_cost: nil, is_public: nil, name: nil}
+  @invalid_attrs %{charge_schema: nil, cost: nil, is_public: nil, name: nil}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -78,8 +78,8 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
 
       assert %{
                "id" => ^id,
-               "default_charge_schema" => "PER_EXECUTION",
-               "default_cost" => 120.5,
+               "charge_schema" => "PER_EXECUTION",
+               "cost" => 120.5,
                "is_public" => true,
                "name" => "package",
                "versions" => versions,
@@ -137,8 +137,8 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
 
       assert %{
                "id" => ^id,
-               "default_charge_schema" => "PER_MINUTE",
-               "default_cost" => 456.7,
+               "charge_schema" => "PER_MINUTE",
+               "cost" => 456.7,
                "is_public" => false,
                "name" => "package"
              } = json_response(conn, 200)["data"]
