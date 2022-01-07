@@ -43,7 +43,14 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmController do
 
   def show(conn, %{"id" => id}) do
     token_type = MotivusWbMarketplaceApi.Account.JwtOrMwbt.get_token_type(conn)
-    algorithm = PackageRegistry.get_algorithm!(id)
+
+    user_id =
+      case Guardian.Plug.current_resource(conn) do
+        %{id: user_id} -> user_id
+        _ -> nil
+      end
+
+    algorithm = PackageRegistry.get_algorithm!(user_id, id)
     render(conn, "show.json", algorithm: algorithm, token_type: token_type)
   end
 

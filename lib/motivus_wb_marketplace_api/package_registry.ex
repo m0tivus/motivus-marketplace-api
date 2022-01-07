@@ -43,11 +43,29 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       from a in Algorithm,
         join: au in assoc(a, :algorithm_users),
         where: a.is_public == true,
-        or_where: au.user_id == ^user_id
+        or_where: au.user_id == ^user_id,
+        preload: [algorithm_users: au]
 
     query
     |> preload(^@algorithm_preload_default)
     |> Repo.all()
+    |> apply_role()
+  end
+
+  def apply_role(algorithms) do
+    algorithms
+    |> Enum.map(fn a ->
+      case a.algorithm_users do
+        [au] ->
+          case au.role do
+            "OWNER" -> a
+            _ -> a |> Map.merge(%{cost: au.cost, charge_schema: au.charge_schema})
+          end
+
+        _ ->
+          a
+      end
+    end)
   end
 
   @doc """
@@ -65,6 +83,24 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def get_algorithm!(id), do: Algorithm |> preload(^@algorithm_preload_default) |> Repo.get!(id)
+
+  def get_algorithm!(user_id, id) do
+    query =
+      from a in Algorithm,
+        join: au in assoc(a, :algorithm_users),
+        where: a.id == ^id,
+        where: a.is_public == true or au.user_id == ^user_id,
+        preload: [algorithm_users: au]
+
+    algorithm =
+      query
+      |> preload(^@algorithm_preload_default)
+      |> Repo.one!()
+
+    [algorithm]
+    |> apply_role()
+    |> List.first()
+  end
 
   @doc """
   Creates a algorithm.

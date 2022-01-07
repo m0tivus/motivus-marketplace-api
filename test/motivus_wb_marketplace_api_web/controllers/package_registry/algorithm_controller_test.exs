@@ -34,15 +34,22 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
     test "lists all algorithms that a user has access to", %{conn: conn, user: user} do
       _algorithm = algorithm_fixture(%{"is_public" => false})
 
-      %{id: id} = algorithm_fixture(%{"name" => "private-with-access", "is_public" => false})
+      %{id: id} =
+        algorithm_fixture(%{"name" => "private-with-access", "is_public" => false, "cost" => 100})
 
-      algorithm_user_fixture(%{"user_id" => user.id, "algorithm_id" => id, "role" => "USER"})
+      algorithm_user_fixture(%{
+        "user_id" => user.id,
+        "algorithm_id" => id,
+        "role" => "USER",
+        "cost" => 50
+      })
 
       conn = get(conn, Routes.package_registry_algorithm_path(conn, :index))
 
       assert [
                %{
-                 "id" => ^id
+                 "id" => ^id,
+                 "cost" => 50.0
                }
              ] = json_response(conn, 200)["data"]
     end
@@ -63,6 +70,41 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
                  "id" => ^id
                }
              ] = json_response(conn, 200)["data"]
+    end
+
+    test "renders single algorithm according to permissions",
+         %{conn: conn, user: user} = context do
+      %{id: id} = algorithm_fixture(%{"is_public" => false, "user_id" => user.id})
+      version_fixture(%{"algorithm_id" => id})
+
+      client = user_fixture()
+
+      algorithm_user_fixture(%{
+        "user_id" => client.id,
+        "algorithm_id" => id,
+        "cost" => 1,
+        "charge_schema" => "PER_MINUTE"
+      })
+
+      conn = get(conn, Routes.package_registry_algorithm_path(conn, :show, id))
+
+      assert %{
+               "id" => ^id,
+               "charge_schema" => "PER_EXECUTION",
+               "cost" => 120.5,
+               "is_public" => false
+             } = json_response(conn, 200)["data"]
+
+      {:ok, %{conn: conn}} = log_in_user(context, client)
+
+      conn = get(conn, Routes.package_registry_algorithm_path(conn, :show, id))
+
+      assert %{
+               "id" => ^id,
+               "charge_schema" => "PER_MINUTE",
+               "cost" => 1.0,
+               "is_public" => false
+             } = json_response(conn, 200)["data"]
     end
   end
 
