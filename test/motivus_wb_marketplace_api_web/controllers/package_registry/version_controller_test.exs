@@ -3,7 +3,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
 
   import MotivusWbMarketplaceApiWeb.AuthControllerCase
 
-  alias MotivusWbMarketplaceApi.Fixtures
+  import MotivusWbMarketplaceApi.Fixtures
 
   @create_attrs %{
     metadata: %{},
@@ -22,7 +22,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
   setup :with_auth
 
   setup %{conn: conn, user: user} do
-    algorithm = Fixtures.algorithm_fixture(%{"name" => "package", "user_id" => user.id})
+    algorithm = algorithm_fixture(%{"name" => "package", "user_id" => user.id})
 
     {:ok, conn: put_req_header(conn, "accept", "application/json"), algorithm: algorithm}
   end
@@ -32,10 +32,40 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
       conn = get(conn, Routes.package_registry_algorithm_version_path(conn, :index, algorithm.id))
       assert json_response(conn, 200)["data"] == []
     end
+
+    test "does not show links for regular user", %{conn: conn, algorithm: algorithm} do
+      %{id: id} = version_fixture(%{"algorithm_id" => algorithm.id})
+
+      conn = get(conn, Routes.package_registry_algorithm_version_path(conn, :show, algorithm, id))
+
+      version = json_response(conn, 200)["data"]
+      assert Map.get(version, "id") == id
+      assert Map.get(version, "wasm_url") == nil, "data should not include link"
+    end
+
+    test "shows links for application_token user",
+         %{algorithm: algorithm, user: user} = context do
+      {:ok, %{conn: conn}} = log_in_user(context, user, nil, :application_token)
+
+      %{id: id} = version_fixture(%{"algorithm_id" => algorithm.id})
+
+      conn = get(conn, Routes.package_registry_algorithm_version_path(conn, :show, algorithm, id))
+
+      assert %{
+               "id" => ^id,
+               "metadata" => %{},
+               "name" => "1.0.0",
+               "data_url" => "https://" <> _linkd,
+               "loader_url" => "https://" <> _linkl,
+               "wasm_url" => "https://" <> _linkw,
+               "inserted_at" => _date
+             } = json_response(conn, 200)["data"]
+    end
   end
 
   describe "create version" do
-    test "renders version when data is valid", %{conn: conn, algorithm: algorithm} do
+    test "renders version when data is valid",
+         %{conn: conn, algorithm: algorithm, user: user} = context do
       conn =
         post(conn, Routes.package_registry_algorithm_version_path(conn, :create, algorithm),
           version: @create_attrs
@@ -47,18 +77,23 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
 
       assert %{
                "id" => ^id,
-               "hash" => nil,
                "metadata" => %{},
                "name" => "1.0.0",
-               "data_url" => "https://" <> _linkd,
-               "loader_url" => "https://" <> _linkl,
-               "wasm_url" => "https://" <> _linkw,
                "inserted_at" => _date
              } = json_response(conn, 200)["data"]
+
+      {:ok, %{conn: conn}} = log_in_user(context, user, nil, :application_token)
+
+      conn =
+        post(conn, Routes.package_registry_algorithm_version_path(conn, :create, algorithm),
+          version: @create_attrs
+        )
+
+      assert response(conn, 405)
     end
 
     test "renders errors when user has no permissions", %{algorithm: algorithm} = context do
-      unrelated_user = Fixtures.user_fixture()
+      unrelated_user = user_fixture()
       {:ok, %{conn: conn}} = log_in_user(context, unrelated_user)
 
       conn =
@@ -68,9 +103,9 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
 
       assert response(conn, 405)
 
-      just_user = Fixtures.user_fixture()
+      just_user = user_fixture()
 
-      Fixtures.algorithm_user_fixture(%{
+      algorithm_user_fixture(%{
         "algorithm_id" => algorithm.id,
         "user_id" => just_user.id,
         "role" => "USER"
@@ -129,7 +164,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
   end
 
   defp create_version(%{algorithm: %{id: algorithm_id}}) do
-    version = Fixtures.version_fixture(%{"algorithm_id" => algorithm_id})
+    version = version_fixture(%{"algorithm_id" => algorithm_id})
 
     {:ok, version: version}
   end

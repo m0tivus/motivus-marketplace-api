@@ -11,11 +11,11 @@ defmodule MotivusWbMarketplaceApi.MwbtJwtTest do
       assert {:ok, "ey" <> _token, _full_claims} = Guardian.encode_and_sign(user)
     end
 
-    test "encode_and_sign/2 with permanent claim returns MWBat" do
+    test "encode_and_sign/2 with mwbat claim returns MWBat" do
       user = user_fixture()
 
       assert {:ok, "MWBat" <> _token, _full_claims} =
-               Guardian.encode_and_sign(user, %{typ: "permanent", description: "some description"})
+               Guardian.encode_and_sign(user, %{typ: "mwbat", description: "some description"})
     end
 
     test "resource_from_token/1 JWT returns user" do
@@ -29,7 +29,7 @@ defmodule MotivusWbMarketplaceApi.MwbtJwtTest do
       user = user_fixture()
 
       assert {:ok, "MWBat" <> _token = token_string, _full_claims} =
-               Guardian.encode_and_sign(user, %{typ: "permanent", description: "some description"})
+               Guardian.encode_and_sign(user, %{typ: "mwbat", description: "some description"})
 
       assert {:ok, ^user, _claims} = Guardian.resource_from_token(token_string)
     end

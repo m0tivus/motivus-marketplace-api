@@ -21,18 +21,32 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       [%Algorithm{}, ...]
 
   """
+
+  @algorithm_preload_default [:versions, algorithm_users: [:user]]
   def list_algorithms(params \\ %{})
 
   def list_algorithms(%{"name" => name}) do
     Algorithm
-    |> preload([:versions, :users, algorithm_users: [:user]])
+    |> preload(^@algorithm_preload_default)
     |> where(name: ^name)
     |> Repo.all()
   end
 
-  def list_algorithms(%{}) do
+  def list_algorithms(_) do
     Algorithm
-    |> preload([:versions, :users, algorithm_users: [:user]])
+    |> preload(^@algorithm_preload_default)
+    |> Repo.all()
+  end
+
+  def list_available_algorithms(user_id, _) do
+    query =
+      from a in Algorithm,
+        join: au in assoc(a, :algorithm_users),
+        where: a.is_public == true,
+        or_where: au.user_id == ^user_id
+
+    query
+    |> preload(^@algorithm_preload_default)
     |> Repo.all()
   end
 
@@ -50,8 +64,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       ** (Ecto.NoResultsError)
 
   """
-  def get_algorithm!(id),
-    do: Algorithm |> preload([:versions, :users, algorithm_users: [:user]]) |> Repo.get!(id)
+  def get_algorithm!(id), do: Algorithm |> preload(^@algorithm_preload_default) |> Repo.get!(id)
 
   @doc """
   Creates a algorithm.
@@ -81,7 +94,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
              )
            end)
            |> Repo.transaction() do
-      {:ok, algorithm |> Repo.preload([:versions, :users, algorithm_users: [:user]])}
+      {:ok, algorithm |> Repo.preload(@algorithm_preload_default)}
     else
       {:error, :algorithm, chset, _} -> {:error, chset}
       e -> e

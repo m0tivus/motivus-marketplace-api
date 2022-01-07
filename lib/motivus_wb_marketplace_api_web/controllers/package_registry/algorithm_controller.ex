@@ -11,8 +11,16 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmController do
   action_fallback MotivusWbMarketplaceApiWeb.FallbackController
 
   def index(conn, params) do
-    algorithms = PackageRegistry.list_algorithms(params)
-    render(conn, "index.json", algorithms: algorithms)
+    token_type = MotivusWbMarketplaceApi.Account.JwtOrMwbt.get_token_type(conn)
+
+    user_id =
+      case Guardian.Plug.current_resource(conn) do
+        %{id: user_id} -> user_id
+        _ -> nil
+      end
+
+    algorithms = PackageRegistry.list_available_algorithms(user_id, params)
+    render(conn, "index.json", algorithms: algorithms, token_type: token_type)
   end
 
   def create(conn, %{"algorithm" => algorithm_params}) do
@@ -34,8 +42,9 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmController do
   end
 
   def show(conn, %{"id" => id}) do
+    token_type = MotivusWbMarketplaceApi.Account.JwtOrMwbt.get_token_type(conn)
     algorithm = PackageRegistry.get_algorithm!(id)
-    render(conn, "show.json", algorithm: algorithm)
+    render(conn, "show.json", algorithm: algorithm, token_type: token_type)
   end
 
   def update(conn, %{"id" => id, "algorithm" => algorithm_params}) do

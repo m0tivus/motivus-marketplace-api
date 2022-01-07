@@ -7,9 +7,20 @@ defmodule MotivusWbMarketplaceApi.Account.JwtOrMwbt do
     %{}
   end
 
+  def get_token_type(%{private: %{guardian_default_claims: %{"typ" => "mwbat"}}}),
+    do: :application_token
+
+  def get_token_type(%{private: %{guardian_default_claims: %{"typ" => "mwbpat"}}}),
+    do: :personal_access_token
+
+  def get_token_type(%{private: %{guardian_default_claims: %{"typ" => "access"}}}),
+    do: :access_token
+
+  def get_token_type(_), do: :other
+
   def create_token(mod, claims, options \\ [])
 
-  def create_token(mod, %{"typ" => "permanent", "description" => description} = claims, _options) do
+  def create_token(mod, %{"typ" => "mwbat", "description" => description} = claims, _options) do
     {:ok, user} = Guardian.returning_tuple({mod, :resource_from_claims, [claims]})
 
     {:ok, application_token} =
@@ -26,7 +37,7 @@ defmodule MotivusWbMarketplaceApi.Account.JwtOrMwbt do
     %{user_id: user_id, description: description} =
       Account.get_application_token_from_value!(token)
 
-    {:ok, %{"sub" => user_id, "typ" => "permanent", "description" => description}}
+    {:ok, %{"sub" => user_id, "typ" => "mwbat", "description" => description}}
   end
 
   def decode_token(mod, token, options), do: Jwt.decode_token(mod, token, options)
@@ -43,8 +54,7 @@ defmodule MotivusWbMarketplaceApi.Account.JwtOrMwbt do
 
   def refresh(mod, old_token, options), do: Jwt.refresh(mod, old_token, options)
 
-
-def exchange(mod, old_token, from_type, to_type, options),
+  def exchange(mod, old_token, from_type, to_type, options),
     do: Jwt.exchange(mod, old_token, from_type, to_type, options)
 
   def token_id, do: Jwt.token_id()

@@ -4,7 +4,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
   import MotivusWbMarketplaceApiWeb.AuthControllerCase
 
   alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
-  alias MotivusWbMarketplaceApi.Fixtures
+  import MotivusWbMarketplaceApi.Fixtures
 
   @create_attrs %{
     "default_charge_schema" => "PER_EXECUTION",
@@ -30,15 +30,49 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
       conn = get(conn, Routes.package_registry_algorithm_path(conn, :index))
       assert json_response(conn, 200)["data"] == []
     end
+
+    test "lists all algorithms that a user has access to", %{conn: conn, user: user} do
+      _algorithm = algorithm_fixture(%{"is_public" => false})
+
+      %{id: id} = algorithm_fixture(%{"name" => "private-with-access", "is_public" => false})
+
+      algorithm_user_fixture(%{"user_id" => user.id, "algorithm_id" => id, "role" => "USER"})
+
+      conn = get(conn, Routes.package_registry_algorithm_path(conn, :index))
+
+      assert [
+               %{
+                 "id" => ^id
+               }
+             ] = json_response(conn, 200)["data"]
+    end
+
+    test "lists all algorithms that a user has access to using application_token", context do
+      _algorithm = algorithm_fixture(%{"is_public" => false})
+
+      %{id: id} = algorithm_fixture(%{"name" => "private-with-access", "is_public" => false})
+
+      user = user_fixture()
+      algorithm_user_fixture(%{"user_id" => user.id, "algorithm_id" => id, "role" => "USER"})
+
+      {:ok, %{conn: conn}} = log_in_user(context, user, nil, :application_token)
+      conn = get(conn, Routes.package_registry_algorithm_path(conn, :index))
+
+      assert [
+               %{
+                 "id" => ^id
+               }
+             ] = json_response(conn, 200)["data"]
+    end
   end
 
   describe "create algorithm" do
-    test "renders algorithm when data is valid", %{conn: conn} do
+    test "renders algorithm when data is valid", %{conn: conn, user: user} = context do
       conn =
         post(conn, Routes.package_registry_algorithm_path(conn, :create), algorithm: @create_attrs)
 
       assert %{"id" => id} = json_response(conn, 201)["data"]
-      %{id: version_id} = Fixtures.version_fixture(%{"algorithm_id" => id})
+      %{id: version_id} = version_fixture(%{"algorithm_id" => id})
 
       conn = get(conn, Routes.package_registry_algorithm_path(conn, :show, id))
 
@@ -53,6 +87,26 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
              } = json_response(conn, 200)["data"]
 
       assert [%{"id" => ^version_id}] = versions
+      [version] = versions
+      assert Map.get(version, "wasm_url") == nil
+
+      {:ok, %{conn: conn}} = log_in_user(context, user, nil, :application_token)
+      conn = get(conn, Routes.package_registry_algorithm_path(conn, :show, id))
+      %{"versions" => versions} = json_response(conn, 200)["data"]
+      [version] = versions
+      link = Map.get(version, "wasm_url")
+      assert "https://" <> _link = link
+    end
+
+    test "renders errors when auth is provided by application_token", context do
+      user = user_fixture()
+
+      {:ok, %{conn: conn}} = log_in_user(context, user, nil, :application_token)
+
+      conn =
+        post(conn, Routes.package_registry_algorithm_path(conn, :create), algorithm: @create_attrs)
+
+      assert response(conn, 405)
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -91,7 +145,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
     end
 
     test "renders error when user is not owner", %{algorithm: algorithm} = context do
-      unrelated_user = Fixtures.user_fixture()
+      unrelated_user = user_fixture()
       {:ok, %{conn: conn}} = log_in_user(context, unrelated_user)
 
       conn =
@@ -122,7 +176,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
   end
 
   defp create_algorithm(%{user: %{id: user_id}}) do
-    algorithm = Fixtures.algorithm_fixture(%{"user_id" => user_id})
+    algorithm = algorithm_fixture(%{"user_id" => user_id})
     {:ok, algorithm: algorithm}
   end
 end

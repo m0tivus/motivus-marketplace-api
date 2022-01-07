@@ -8,10 +8,10 @@ defmodule MotivusWbMarketplaceApiWeb.AuthControllerCase do
     log_in_user(context, user)
   end
 
-  def log_in_user(%{conn: conn}, user) do
+  def log_in_user(%{conn: conn}, user, claims \\ %{}) do
     token =
       conn
-      |> Guardian.Plug.sign_in(%{id: user.id}, %{})
+      |> Guardian.Plug.sign_in(%{id: user.id}, claims)
       |> Guardian.Plug.current_token()
 
     {
@@ -24,4 +24,7 @@ defmodule MotivusWbMarketplaceApiWeb.AuthControllerCase do
       }
     }
   end
+
+  def log_in_user(context, user, _, :application_token),
+    do: log_in_user(context, user, %{typ: "mwbat", description: "some description"})
 end

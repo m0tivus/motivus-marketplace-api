@@ -5,13 +5,17 @@ defmodule MotivusWbMarketplaceApiWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :auth do
-    plug MotivusWbMarketplaceApi.Account.EnsureAuthPipeline
-  end
+  pipeline :auth, do: plug(MotivusWbMarketplaceApi.Account.EnsureAuthPipeline)
+  pipeline :maybe_auth, do: plug(MotivusWbMarketplaceApi.Account.MaybeAuthPipeline)
 
-  pipeline :maybe_auth do
-    plug MotivusWbMarketplaceApi.Account.MaybeAuthPipeline
-  end
+  pipeline :application_token,
+    do:
+      plug(MotivusWbMarketplaceApi.Account.ApplicationTokenPipeline,
+        allowed: [
+          package_registry_algorithm: [:index, :show],
+          package_registry_algorithm_version: [:index, :show]
+        ]
+      )
 
   scope "/auth", MotivusWbMarketplaceApiWeb.Account do
     pipe_through :api
@@ -35,10 +39,11 @@ defmodule MotivusWbMarketplaceApiWeb.Router do
     pipe_through :maybe_auth
 
     scope "/package_registry", PackageRegistry, as: :package_registry do
-      # TODO: public and private
+      # TODO: differntiated pricing
+      pipe_through :application_token
+
       resources "/algorithms", AlgorithmController, as: :algorithm do
         # TODO: personal_access_token -> push
-        # TODO: application_tokens -> fetch
         resources "/versions", VersionController
 
         pipe_through :auth

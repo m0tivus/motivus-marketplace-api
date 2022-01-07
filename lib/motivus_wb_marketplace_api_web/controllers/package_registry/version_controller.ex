@@ -13,8 +13,9 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionController do
   plug :load_algorithm
 
   def index(conn, _params) do
+    token_type = MotivusWbMarketplaceApi.Account.JwtOrMwbt.get_token_type(conn)
     versions = PackageRegistry.list_versions()
-    render(conn, "index.json", versions: versions)
+    render(conn, "index.json", versions: versions, token_type: token_type)
   end
 
   def create(conn, %{"version" => version_params, "package" => %Plug.Upload{} = package} = params)
@@ -23,11 +24,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionController do
         create(
           conn,
           params
-          |> Map.put(
-            "version",
-            Jason.decode!(version_params)
-            |> Map.put("package", package)
-          )
+          |> Map.put("version", Jason.decode!(version_params) |> Map.put("package", package))
         )
 
   def create(conn, %{"version" => version_params, "algorithm_id" => algorithm_id}) do
@@ -51,8 +48,9 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionController do
   end
 
   def show(conn, %{"id" => id}) do
+    token_type = MotivusWbMarketplaceApi.Account.JwtOrMwbt.get_token_type(conn)
     version = PackageRegistry.get_version!(id)
-    render(conn, "show.json", version: version)
+    render(conn, "show.json", version: version, token_type: token_type)
   end
 
   def update(conn, _params), do: conn |> send_resp(:method_not_allowed, "not allowed")
