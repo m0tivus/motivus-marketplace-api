@@ -23,7 +23,7 @@ defmodule MotivusWbMarketplaceApi.Account.ApplicationTokenPipeline do
     else
       _ ->
         conn
-        |> resp(405, "Not allowed using this token")
+        |> resp(:forbidden, "Not allowed using this token")
         |> halt()
     end
   end

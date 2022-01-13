@@ -63,7 +63,9 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmUserController do
   def update(conn, %{"id" => id, "algorithm_user" => algorithm_user_params}) do
     algorithm_user = PackageRegistry.get_algorithm_user!(id)
 
-    with {:ok, %AlgorithmUser{} = algorithm_user} <-
+    with {:ok, _} <-
+           PackageRegistry.validate_update_algorithm_user(algorithm_user, algorithm_user_params),
+         {:ok, %AlgorithmUser{} = algorithm_user} <-
            PackageRegistry.update_algorithm_user(algorithm_user, algorithm_user_params) do
       render(conn, "show.json", algorithm_user: algorithm_user)
     end
@@ -72,7 +74,9 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmUserController do
   def delete(conn, %{"id" => id}) do
     algorithm_user = PackageRegistry.get_algorithm_user!(id)
 
-    with {:ok, %AlgorithmUser{}} <- PackageRegistry.delete_algorithm_user(algorithm_user) do
+    with {:ok, _} <-
+           PackageRegistry.validate_delete_algorithm_user(algorithm_user),
+         {:ok, %AlgorithmUser{}} <- PackageRegistry.delete_algorithm_user(algorithm_user) do
       send_resp(conn, :no_content, "")
     end
   end

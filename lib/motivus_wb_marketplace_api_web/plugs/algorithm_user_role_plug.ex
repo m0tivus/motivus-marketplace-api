@@ -17,7 +17,7 @@ defmodule MotivusWbMarketplaceApiWeb.Plugs.AlgorithmUserRolePlug do
     else
       _ ->
         conn
-        |> resp(405, "Not enough user previlieges")
+        |> resp(:forbidden, "Not enough user previlieges")
         |> halt()
     end
   end

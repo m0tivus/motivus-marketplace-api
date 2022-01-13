@@ -148,7 +148,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
       conn =
         post(conn, Routes.package_registry_algorithm_path(conn, :create), algorithm: @create_attrs)
 
-      assert response(conn, 405)
+      assert response(conn, :forbidden)
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -195,7 +195,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
           algorithm: @update_attrs
         )
 
-      assert response(conn, 405)
+      assert response(conn, :forbidden)
     end
 
     test "renders errors when data is invalid", %{conn: conn, algorithm: algorithm} do
@@ -213,7 +213,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
 
     test "does not allow algorithm deletion", %{conn: conn, algorithm: algorithm} do
       conn = delete(conn, Routes.package_registry_algorithm_path(conn, :delete, algorithm))
-      assert response(conn, 405)
+      assert response(conn, :method_not_allowed)
     end
   end
 

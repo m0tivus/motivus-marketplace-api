@@ -337,6 +337,13 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
     AlgorithmUser |> preload(:user) |> Repo.all()
   end
 
+  def list_algorithm_users(algorithm_id, role) do
+    AlgorithmUser
+    |> where(algorithm_id: ^algorithm_id, role: ^role)
+    |> preload(:user)
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single algorithm_user.
 
@@ -429,5 +436,35 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   """
   def change_algorithm_user(%AlgorithmUser{} = algorithm_user) do
     AlgorithmUser.create_changeset(algorithm_user, %{})
+  end
+
+  def validate_update_algorithm_user(%AlgorithmUser{} = algorithm_user, params) do
+    types = %{role: :string}
+
+    case {%AlgorithmUser{} = algorithm_user, types}
+         |> Ecto.Changeset.cast(params, Map.keys(types))
+         |> Ecto.Changeset.validate_required([:role])
+         |> ensure_remaining_owner() do
+      %{valid?: true} = chset -> {:ok, Ecto.Changeset.apply_changes(chset)}
+      %{valid?: false} = chset -> {:error, chset}
+    end
+  end
+
+  def validate_delete_algorithm_user(%AlgorithmUser{} = algorithm_user),
+    do: validate_update_algorithm_user(algorithm_user, %{role: "-"})
+
+  def ensure_remaining_owner(chset) do
+    algorithm_user_roles_after = [
+      %{role: chset.changes["role"]}
+      | list_algorithm_users(chset.data.algorithm_id, "OWNER")
+        |> Enum.filter(fn au -> au.id != chset.data.id end)
+        |> Enum.map(fn %{role: role} -> %{role: role} end)
+    ]
+
+    case algorithm_user_roles_after
+         |> Enum.filter(fn %{role: role} -> role == "OWNER" end) do
+      [] -> chset |> Ecto.Changeset.add_error(:owners, "At least one owner must remain")
+      _ -> chset
+    end
   end
 end

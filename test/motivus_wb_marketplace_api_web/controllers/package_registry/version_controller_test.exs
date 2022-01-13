@@ -89,7 +89,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
           version: @create_attrs
         )
 
-      assert response(conn, 405)
+      assert response(conn, :forbidden)
     end
 
     test "renders errors when user has no permissions", %{algorithm: algorithm} = context do
@@ -101,7 +101,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
           version: @create_attrs
         )
 
-      assert response(conn, 405)
+      assert response(conn, :forbidden)
 
       just_user = user_fixture()
 
@@ -118,7 +118,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
           version: @create_attrs
         )
 
-      assert response(conn, 405)
+      assert response(conn, :forbidden)
     end
 
     test "renders errors when data is invalid", %{conn: conn, algorithm: algorithm} do
@@ -145,7 +145,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
           Routes.package_registry_algorithm_version_path(conn, :update, algorithm, version)
         )
 
-      assert response(conn, 405)
+      assert response(conn, :method_not_allowed)
     end
   end
 
@@ -159,7 +159,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
           Routes.package_registry_algorithm_version_path(conn, :delete, algorithm, version)
         )
 
-      assert response(conn, 405)
+      assert response(conn, :method_not_allowed)
     end
   end
 
