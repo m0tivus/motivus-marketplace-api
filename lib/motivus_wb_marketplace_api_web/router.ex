@@ -39,7 +39,6 @@ defmodule MotivusWbMarketplaceApiWeb.Router do
     pipe_through :maybe_auth
 
     scope "/package_registry", PackageRegistry, as: :package_registry do
-      # TODO: differntiated pricing
       pipe_through :application_token
 
       resources "/algorithms", AlgorithmController, as: :algorithm do

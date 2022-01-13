@@ -118,6 +118,20 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
       assert Account.get_application_token!(application_token.id) == application_token
     end
 
+    test "get_application_token!/2 returns the application_token with given user_id and id" do
+      application_token = application_token_fixture()
+
+      assert Account.get_application_token!(application_token.user_id, application_token.id) ==
+               application_token
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Account.get_application_token!(
+          System.unique_integer(),
+          application_token.id
+        )
+      end
+    end
+
     test "get_application_token_from_value!/1 returns the application_token with given id" do
       application_token = application_token_fixture()
 

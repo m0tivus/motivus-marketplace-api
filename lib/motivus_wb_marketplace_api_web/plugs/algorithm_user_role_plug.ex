@@ -22,8 +22,8 @@ defmodule MotivusWbMarketplaceApiWeb.Plugs.AlgorithmUserRolePlug do
     end
   end
 
+  def call(conn, _opts), do: conn
+
   defp get_algorithm_id(%{"algorithm_id" => id}), do: id
   defp get_algorithm_id(%{"id" => id}), do: id
-
-  def call(conn, _opts), do: conn
 end

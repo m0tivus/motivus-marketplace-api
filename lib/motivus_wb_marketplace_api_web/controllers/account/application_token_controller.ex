@@ -32,12 +32,14 @@ defmodule MotivusWbMarketplaceApiWeb.Account.ApplicationTokenController do
   end
 
   def show(conn, %{"id" => id}) do
-    application_token = Account.get_application_token!(id)
+    %{id: user_id} = Guardian.Plug.current_resource(conn)
+    application_token = Account.get_application_token!(user_id, id)
     render(conn, "show.json", application_token: application_token)
   end
 
   def update(conn, %{"id" => id, "application_token" => application_token_params}) do
-    application_token = Account.get_application_token!(id)
+    %{id: user_id} = Guardian.Plug.current_resource(conn)
+    application_token = Account.get_application_token!(user_id, id)
 
     with {:ok, %ApplicationToken{} = application_token} <-
            Account.update_application_token(application_token, application_token_params) do
@@ -46,7 +48,8 @@ defmodule MotivusWbMarketplaceApiWeb.Account.ApplicationTokenController do
   end
 
   def delete(conn, %{"id" => id}) do
-    application_token = Account.get_application_token!(id)
+    %{id: user_id} = Guardian.Plug.current_resource(conn)
+    application_token = Account.get_application_token!(user_id, id)
 
     with {:ok, %ApplicationToken{}} <- Account.delete_application_token(application_token) do
       send_resp(conn, :no_content, "")

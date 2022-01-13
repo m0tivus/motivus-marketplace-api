@@ -55,7 +55,8 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmController do
   end
 
   def update(conn, %{"id" => id, "algorithm" => algorithm_params}) do
-    algorithm = PackageRegistry.get_algorithm!(id)
+    %{id: user_id} = Guardian.Plug.current_resource(conn)
+    algorithm = PackageRegistry.get_algorithm!(user_id, id)
 
     with {:ok, %Algorithm{} = algorithm} <-
            PackageRegistry.update_algorithm(algorithm, algorithm_params) do

@@ -60,7 +60,6 @@ defmodule MotivusWbMarketplaceApiWeb.Account.ApplicationTokenControllerTest do
     end
   end
 
-  # TODO: should not look at other users resoruces
   describe "update application_token" do
     setup [:create_application_token]
 
