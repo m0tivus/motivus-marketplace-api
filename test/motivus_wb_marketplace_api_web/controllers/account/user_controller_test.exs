@@ -25,9 +25,9 @@ defmodule MotivusWbMarketplaceApiWeb.Account.UserControllerTest do
       assert %{
                "id" => ^id,
                "avatar_url" => "some avatar_url",
-               "email" => "some email",
+               "email" => "user@" <> _unique_mail,
                "provider" => "some provider",
-               "username" => "some username",
+               "username" => "username" <> _unique_username,
                "name" => "some name"
              } = json_response(conn, 200)["data"]
     end
@@ -43,7 +43,7 @@ defmodule MotivusWbMarketplaceApiWeb.Account.UserControllerTest do
       assert %{
                "id" => ^id,
                "avatar_url" => "some updated avatar_url",
-               "email" => "some email",
+               "email" => "user@" <> _unique_mail,
                "provider" => "some provider",
                "username" => "some updated username",
                "name" => "some updated name"

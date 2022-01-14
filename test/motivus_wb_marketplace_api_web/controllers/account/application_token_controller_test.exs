@@ -1,27 +1,28 @@
 defmodule MotivusWbMarketplaceApiWeb.Account.ApplicationTokenControllerTest do
   use MotivusWbMarketplaceApiWeb.ConnCase
 
-  alias MotivusWbMarketplaceApi.Account
+  import MotivusWbMarketplaceApiWeb.AuthControllerCase
+
   alias MotivusWbMarketplaceApi.Account.ApplicationToken
+  alias MotivusWbMarketplaceApi.Fixtures
 
   @create_attrs %{
     valid: true,
-    value: "some value"
+    value: "some value",
+    description: "some description"
   }
   @update_attrs %{
     valid: false,
-    value: "some updated value"
+    value: "some updated value",
+    description: "some updated description"
   }
   @invalid_attrs %{valid: nil, value: nil}
-
-  def fixture(:application_token) do
-    {:ok, application_token} = Account.create_application_token(@create_attrs)
-    application_token
-  end
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
+
+  setup :with_auth
 
   describe "index" do
     test "lists all application_tokens", %{conn: conn} do
@@ -32,20 +33,29 @@ defmodule MotivusWbMarketplaceApiWeb.Account.ApplicationTokenControllerTest do
 
   describe "create application_token" do
     test "renders application_token when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.account_application_token_path(conn, :create), application_token: @create_attrs)
+      conn =
+        post(conn, Routes.account_application_token_path(conn, :create),
+          application_token: @create_attrs
+        )
+
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
       conn = get(conn, Routes.account_application_token_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "valid" => true,
-               "value" => "some value"
+               "value" => "MWBat" <> _token,
+               "description" => "some description"
              } = json_response(conn, 200)["data"]
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.account_application_token_path(conn, :create), application_token: @invalid_attrs)
+      conn =
+        post(conn, Routes.account_application_token_path(conn, :create),
+          application_token: @invalid_attrs
+        )
+
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -53,21 +63,36 @@ defmodule MotivusWbMarketplaceApiWeb.Account.ApplicationTokenControllerTest do
   describe "update application_token" do
     setup [:create_application_token]
 
-    test "renders application_token when data is valid", %{conn: conn, application_token: %ApplicationToken{id: id} = application_token} do
-      conn = put(conn, Routes.account_application_token_path(conn, :update, application_token), application_token: @update_attrs)
+    test "renders application_token when data is valid", %{
+      conn: conn,
+      application_token: %ApplicationToken{id: id, value: value} = application_token
+    } do
+      conn =
+        put(conn, Routes.account_application_token_path(conn, :update, application_token),
+          application_token: @update_attrs
+        )
+
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
       conn = get(conn, Routes.account_application_token_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "valid" => false,
-               "value" => "some updated value"
+               "value" => ^value,
+               "description" => "some updated description"
              } = json_response(conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn, application_token: application_token} do
-      conn = put(conn, Routes.account_application_token_path(conn, :update, application_token), application_token: @invalid_attrs)
+    test "renders errors when data is invalid", %{
+      conn: conn,
+      application_token: application_token
+    } do
+      conn =
+        put(conn, Routes.account_application_token_path(conn, :update, application_token),
+          application_token: @invalid_attrs
+        )
+
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -85,8 +110,8 @@ defmodule MotivusWbMarketplaceApiWeb.Account.ApplicationTokenControllerTest do
     end
   end
 
-  defp create_application_token(_) do
-    application_token = fixture(:application_token)
+  defp create_application_token(%{user: %{id: user_id}}) do
+    application_token = Fixtures.application_token_fixture(%{"user_id" => user_id})
     {:ok, application_token: application_token}
   end
 end

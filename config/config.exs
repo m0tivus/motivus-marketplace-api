@@ -5,7 +5,7 @@
 # is restricted to this project.
 
 # General application configuration
-use Mix.Config
+import Config
 
 config :motivus_wb_marketplace_api,
   ecto_repos: [MotivusWbMarketplaceApi.Repo]
@@ -15,7 +15,7 @@ config :motivus_wb_marketplace_api, MotivusWbMarketplaceApiWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "uyvlxmmK0GTQHcRCDIIZWmFQwrL/81CszsKdmS2M6MV5fxVMXfz+aqhp57j64fGE",
   render_errors: [view: MotivusWbMarketplaceApiWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: MotivusWbMarketplaceApi.PubSub, adapter: Phoenix.PubSub.PG2],
+  pubsub_server: MotivusWbMarketplaceApi.PubSub,
   live_view: [signing_salt: "sRmhueH+"]
 
 # Configures Elixir's Logger

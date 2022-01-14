@@ -1,7 +1,7 @@
 defmodule MotivusWbMarketplaceApi.AccountTest do
   use MotivusWbMarketplaceApi.DataCase
 
-  alias MotivusWbMarketplaceApi.Fixtures
+  import MotivusWbMarketplaceApi.Fixtures
   alias MotivusWbMarketplaceApi.Account
 
   describe "users" do
@@ -22,11 +22,9 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
     }
     @invalid_attrs %{avatar_url: nil, email: nil, provider: nil, username: nil, uuid: nil}
 
-    def user_fixture(attrs \\ %{}), do: Fixtures.user_fixture(attrs)
-
     test "list_users/0 returns all users" do
       user = user_fixture()
-      assert Account.list_users() == [user]
+      assert Enum.member?(Account.list_users(), user)
     end
 
     test "get_user!/1 returns the user with given id" do
@@ -55,8 +53,14 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
     end
 
     test "update_user/2 with valid data updates the user" do
-      user = %{uuid: uuid} = user_fixture()
-      assert {:ok, %User{} = user} = Account.update_user(user, @update_attrs)
+      user = %{uuid: uuid} = user_fixture(%{email: "some email"})
+
+      assert {:ok, %User{} = user} =
+               Account.update_user(
+                 user,
+                 @update_attrs |> Enum.into(%{username: "some updated username"})
+               )
+
       assert user.avatar_url == "some updated avatar_url"
       assert user.email == "some email"
       assert user.provider == "some provider"
@@ -86,22 +90,27 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
   describe "application_tokens" do
     alias MotivusWbMarketplaceApi.Account.ApplicationToken
 
-    @valid_attrs %{valid: true, value: "some value"}
-    @update_attrs %{valid: false, value: "some updated value"}
-    @invalid_attrs %{valid: nil, value: nil}
-
-    def application_token_fixture(attrs \\ %{}) do
-      {:ok, application_token} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Account.create_application_token()
-
-      application_token
-    end
+    @valid_attrs %{
+      "valid" => true,
+      "value" => "some value",
+      "description" => "some description"
+    }
+    @update_attrs %{
+      "valid" => false,
+      "value" => "some updated value",
+      "description" => "some updated description"
+    }
+    @invalid_attrs %{valid: nil, value: nil, description: nil}
 
     test "list_application_tokens/0 returns all application_tokens" do
       application_token = application_token_fixture()
       assert Account.list_application_tokens() == [application_token]
+    end
+
+    test "list_application_tokens/1 returns all application_tokens from user" do
+      application_token = application_token_fixture()
+      _application_token = application_token_fixture()
+      assert Account.list_application_tokens(application_token.user_id) == [application_token]
     end
 
     test "get_application_token!/1 returns the application_token with given id" do
@@ -109,12 +118,38 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
       assert Account.get_application_token!(application_token.id) == application_token
     end
 
+    test "get_application_token!/2 returns the application_token with given user_id and id" do
+      application_token = application_token_fixture()
+
+      assert Account.get_application_token!(application_token.user_id, application_token.id) ==
+               application_token
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Account.get_application_token!(
+          System.unique_integer(),
+          application_token.id
+        )
+      end
+    end
+
+    test "get_application_token_from_value!/1 returns the application_token with given id" do
+      application_token = application_token_fixture()
+
+      assert Account.get_application_token_from_value!(application_token.value) ==
+               application_token
+    end
+
     test "create_application_token/1 with valid data creates a application_token" do
-      assert {:ok, %ApplicationToken{} = application_token} =
-               Account.create_application_token(@valid_attrs)
+      user = user_fixture()
+
+      assert {:ok, %ApplicationToken{value: value} = application_token} =
+               Account.create_application_token(
+                 @valid_attrs
+                 |> Enum.into(%{"user_id" => user.id})
+               )
 
       assert application_token.valid == true
-      assert application_token.value == "some value"
+      assert application_token.value == value
     end
 
     test "create_application_token/1 with invalid data returns error changeset" do
@@ -122,13 +157,13 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
     end
 
     test "update_application_token/2 with valid data updates the application_token" do
-      application_token = application_token_fixture()
+      %{value: value} = application_token = application_token_fixture()
 
       assert {:ok, %ApplicationToken{} = application_token} =
                Account.update_application_token(application_token, @update_attrs)
 
       assert application_token.valid == false
-      assert application_token.value == "some updated value"
+      assert application_token.value == value
     end
 
     test "update_application_token/2 with invalid data returns error changeset" do
@@ -152,6 +187,87 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
     test "change_application_token/1 returns a application_token changeset" do
       application_token = application_token_fixture()
       assert %Ecto.Changeset{} = Account.change_application_token(application_token)
+    end
+  end
+
+  describe "personal_access_tokens" do
+    alias MotivusWbMarketplaceApi.Account.PersonalAccessToken
+
+    @invalid_attrs %{description: nil, valid: nil, value: nil}
+
+    test "list_personal_access_tokens/0 returns all personal_access_tokens" do
+      personal_access_token = personal_access_token_fixture()
+      assert Account.list_personal_access_tokens() == [personal_access_token]
+    end
+
+    test "get_personal_access_token!/1 returns the personal_access_token with given id" do
+      personal_access_token = personal_access_token_fixture()
+      assert Account.get_personal_access_token!(personal_access_token.id) == personal_access_token
+    end
+
+    test "create_personal_access_token/1 with valid data creates a personal_access_token" do
+      user = user_fixture()
+
+      valid_attrs = %{
+        "description" => "some description",
+        "valid" => true,
+        "value" => "some value"
+      }
+
+      assert {:ok, %PersonalAccessToken{} = personal_access_token} =
+               valid_attrs
+               |> Enum.into(%{"user_id" => user.id})
+               |> Account.create_personal_access_token()
+
+      assert personal_access_token.description == "some description"
+      assert personal_access_token.valid == true
+      assert "MWBpat" <> _unique = personal_access_token.value
+    end
+
+    test "create_personal_access_token/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Account.create_personal_access_token(@invalid_attrs)
+    end
+
+    test "update_personal_access_token/2 with valid data updates the personal_access_token" do
+      personal_access_token = personal_access_token_fixture()
+
+      update_attrs = %{
+        description: "some updated description",
+        valid: false,
+        value: "some updated value"
+      }
+
+      assert {:ok, %PersonalAccessToken{} = personal_access_token} =
+               Account.update_personal_access_token(personal_access_token, update_attrs)
+
+      assert personal_access_token.description == "some updated description"
+      assert personal_access_token.valid == false
+      assert "MWBpat" <> _unique = personal_access_token.value
+    end
+
+    test "update_personal_access_token/2 with invalid data returns error changeset" do
+      personal_access_token = personal_access_token_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               Account.update_personal_access_token(personal_access_token, @invalid_attrs)
+
+      assert personal_access_token == Account.get_personal_access_token!(personal_access_token.id)
+    end
+
+    test "delete_personal_access_token/1 deletes the personal_access_token" do
+      personal_access_token = personal_access_token_fixture()
+
+      assert {:ok, %PersonalAccessToken{}} =
+               Account.delete_personal_access_token(personal_access_token)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Account.get_personal_access_token!(personal_access_token.id)
+      end
+    end
+
+    test "change_personal_access_token/1 returns a personal_access_token changeset" do
+      personal_access_token = personal_access_token_fixture()
+      assert %Ecto.Changeset{} = Account.change_personal_access_token(personal_access_token)
     end
   end
 end

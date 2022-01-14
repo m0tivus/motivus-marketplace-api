@@ -1,8 +1,8 @@
 mix phx.gen.json PackageRegistry Algorithm algorithms --web PackageRegistry \
   name:string \
   is_public:boolean \
-  default_cost:float \
-  default_charge_schema:string
+  cost:float \
+  charge_schema:string
 sleep 2
 
 mix phx.gen.json PackageRegistry Version versions --web PackageRegistry \
@@ -26,7 +26,15 @@ sleep 2
 mix phx.gen.json Account ApplicationToken application_tokens --web Account \
   user_id:references:users \
   value:string \
-  valid:boolean 
+  valid:boolean \
+  description:string
+sleep 2
+
+mix phx.gen.json Account PersonalAccessToken personal_access_tokens --web Account \
+  user_id:references:users \
+  value:string \
+  valid:boolean \
+  description:string
 sleep 2
 
 mix phx.gen.json PackageRegistry AlgorithmUser algorithm_users --web PackageRegistry \

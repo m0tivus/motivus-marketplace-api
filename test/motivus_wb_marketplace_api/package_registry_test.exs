@@ -8,22 +8,52 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
     alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
 
     @valid_attrs %{
-      default_charge_schema: "PER_EXECUTION",
-      default_cost: 120.5,
-      is_public: true,
-      name: "package"
+      "charge_schema" => "PER_EXECUTION",
+      "cost" => 120.5,
+      "is_public" => true,
+      "name" => "package"
     }
     @update_attrs %{
-      default_charge_schema: "PER_MINUTE",
-      default_cost: 456.7,
-      is_public: false,
-      name: "some updated name"
+      "charge_schema" => "PER_MINUTE",
+      "cost" => 456.7,
+      "is_public" => false,
+      "name" => "some updated name"
     }
-    @invalid_attrs %{default_charge_schema: nil, default_cost: nil, is_public: nil, name: nil}
+    @invalid_attrs %{charge_schema: nil, cost: nil, is_public: nil, name: nil}
 
     test "list_algorithms/0 returns all algorithms" do
       algorithm = algorithm_fixture()
       assert PackageRegistry.list_algorithms() == [algorithm]
+    end
+
+    test "list_algorithms/1 returns all algorithms with matching name" do
+      algorithm = algorithm_fixture(%{"name" => "my-algorithm"})
+      _algorithm = algorithm_fixture(%{"name" => "my-algorithm-2"})
+
+      assert PackageRegistry.list_algorithms(%{"name" => "my-algorithm"}) == [algorithm]
+    end
+
+    test "list_available_algorithms/2 returns all user available algorithms" do
+      user = user_fixture()
+      public_algorithm = algorithm_fixture(%{"name" => "public", "is_public" => true})
+      _private_algorithm = algorithm_fixture(%{"name" => "private", "is_public" => false})
+
+      available_private_algorithm =
+        algorithm_fixture(%{"name" => "private-2", "is_public" => false})
+
+      algorithm_user_fixture(%{
+        "user_id" => user.id,
+        "algorithm_id" => available_private_algorithm.id,
+        "role" => "USER"
+      })
+
+      available_private_algorithm =
+        available_private_algorithm.id |> PackageRegistry.get_algorithm!()
+
+      available_algorithms = PackageRegistry.list_available_algorithms(user.id, %{})
+
+      assert Enum.find(available_algorithms, &(&1.id == public_algorithm.id))
+      assert Enum.find(available_algorithms, &(&1.id == available_private_algorithm.id))
     end
 
     test "get_algorithm!/1 returns the algorithm with given id" do
@@ -32,11 +62,26 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
     end
 
     test "create_algorithm/1 with valid data creates a algorithm" do
-      assert {:ok, %Algorithm{} = algorithm} = PackageRegistry.create_algorithm(@valid_attrs)
-      assert algorithm.default_charge_schema == "PER_EXECUTION"
-      assert algorithm.default_cost == 120.5
+      %{id: user_id} = user_fixture()
+
+      assert {:ok, %Algorithm{id: algorithm_id} = algorithm} =
+               @valid_attrs
+               |> Enum.into(%{"user_id" => user_id})
+               |> PackageRegistry.create_algorithm()
+
+      [algorithm_user] = PackageRegistry.list_algorithm_users()
+
+      assert %{
+               user_id: ^user_id,
+               algorithm_id: ^algorithm_id,
+               role: "OWNER"
+             } = algorithm_user
+
+      assert algorithm.charge_schema == "PER_EXECUTION"
+      assert algorithm.cost == 120.5
       assert algorithm.is_public == true
       assert algorithm.name == "package"
+      assert algorithm.algorithm_users == [algorithm_user]
     end
 
     test "create_algorithm/1 with invalid data returns error changeset" do
@@ -49,8 +94,8 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert {:ok, %Algorithm{} = algorithm} =
                PackageRegistry.update_algorithm(algorithm, @update_attrs)
 
-      assert algorithm.default_charge_schema == "PER_MINUTE"
-      assert algorithm.default_cost == 456.7
+      assert algorithm.charge_schema == "PER_MINUTE"
+      assert algorithm.cost == 456.7
       assert algorithm.is_public == false
       assert algorithm.name == "package"
     end
@@ -70,7 +115,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert_raise Ecto.NoResultsError, fn -> PackageRegistry.get_algorithm!(algorithm.id) end
     end
 
-    test "change_algorithm/1 returns a algorithm changeset" do
+    test "create_change_algorithm/1 returns a algorithm changeset" do
       algorithm = algorithm_fixture()
       assert %Ecto.Changeset{} = PackageRegistry.change_algorithm(algorithm)
     end
@@ -123,7 +168,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
     end
 
     test "create_version/1 with valid data creates a version" do
-      algorithm = algorithm_fixture(%{name: "package"})
+      algorithm = algorithm_fixture(%{"name" => "package"})
 
       assert {:ok, %Version{} = version} =
                PackageRegistry.create_version(
@@ -181,26 +226,21 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
   describe "algorithm_users" do
     alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser
 
-    @valid_attrs %{charge_schema: "some charge_schema", cost: 120.5, role: "some role"}
+    @valid_attrs %{
+      "charge_schema" => "PER_MINUTE",
+      "cost" => 120.5,
+      "role" => "USER"
+    }
     @update_attrs %{
-      charge_schema: "some updated charge_schema",
+      charge_schema: "PER_EXECUTION",
       cost: 456.7,
-      role: "some updated role"
+      role: "MAINTAINER"
     }
     @invalid_attrs %{charge_schema: nil, cost: nil, role: nil}
 
-    def algorithm_user_fixture(attrs \\ %{}) do
-      {:ok, algorithm_user} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> PackageRegistry.create_algorithm_user()
-
-      algorithm_user
-    end
-
     test "list_algorithm_users/0 returns all algorithm_users" do
-      algorithm_user = algorithm_user_fixture()
-      assert PackageRegistry.list_algorithm_users() == [algorithm_user]
+      algorithm_user_fixture()
+      assert PackageRegistry.list_algorithm_users() > 0
     end
 
     test "get_algorithm_user!/1 returns the algorithm_user with given id" do
@@ -208,13 +248,28 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert PackageRegistry.get_algorithm_user!(algorithm_user.id) == algorithm_user
     end
 
-    test "create_algorithm_user/1 with valid data creates a algorithm_user" do
-      assert {:ok, %AlgorithmUser{} = algorithm_user} =
-               PackageRegistry.create_algorithm_user(@valid_attrs)
+    test "get_algorithm_user!/2 returns the algorithm_user with given algorithm_id and user_id" do
+      algorithm = algorithm_fixture(%{"name" => "unused"})
+      _algorithm_user = algorithm_user_fixture(%{"algorithm_id" => algorithm.id})
+      %{user_id: user_id, algorithm_id: algorithm_id} = algorithm_user = algorithm_user_fixture()
+      assert PackageRegistry.get_algorithm_user!(algorithm_id, user_id) == algorithm_user
+    end
 
-      assert algorithm_user.charge_schema == "some charge_schema"
+    test "create_algorithm_user/1 with valid data creates a algorithm_user" do
+      user = user_fixture()
+      algorithm = algorithm_fixture()
+
+      assert {:ok, %AlgorithmUser{} = algorithm_user} =
+               @valid_attrs
+               |> Enum.into(%{
+                 "algorithm_id" => algorithm.id,
+                 "user_id" => user.id
+               })
+               |> PackageRegistry.create_algorithm_user()
+
+      assert algorithm_user.charge_schema == "PER_MINUTE"
       assert algorithm_user.cost == 120.5
-      assert algorithm_user.role == "some role"
+      assert algorithm_user.role == "USER"
     end
 
     test "create_algorithm_user/1 with invalid data returns error changeset" do
@@ -227,9 +282,9 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert {:ok, %AlgorithmUser{} = algorithm_user} =
                PackageRegistry.update_algorithm_user(algorithm_user, @update_attrs)
 
-      assert algorithm_user.charge_schema == "some updated charge_schema"
+      assert algorithm_user.charge_schema == "PER_EXECUTION"
       assert algorithm_user.cost == 456.7
-      assert algorithm_user.role == "some updated role"
+      assert algorithm_user.role == "MAINTAINER"
     end
 
     test "update_algorithm_user/2 with invalid data returns error changeset" do

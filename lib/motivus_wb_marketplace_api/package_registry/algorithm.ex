@@ -2,16 +2,21 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Algorithm do
   use Ecto.Schema
   import Ecto.Changeset
   alias MotivusWbMarketplaceApi.PackageRegistry.Version
+  alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser
 
   @charge_schemas ~w(PER_EXECUTION PER_MINUTE)
+  @create_attrs ~w(name is_public cost charge_schema)a
+  @update_attrs ~w(is_public cost charge_schema)a
 
   schema "algorithms" do
-    field :default_charge_schema, :string
-    field :default_cost, :float
+    field :charge_schema, :string
+    field :cost, :float
     field :is_public, :boolean, default: false
     field :name, :string
 
     has_many :versions, Version
+    has_many :algorithm_users, AlgorithmUser
+    has_many :users, through: [:algorithm_users, :user]
 
     timestamps()
   end
@@ -19,17 +24,17 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.Algorithm do
   @doc false
   def create_changeset(algorithm, attrs) do
     algorithm
-    |> cast(attrs, [:name, :is_public, :default_cost, :default_charge_schema])
-    |> validate_inclusion(:default_charge_schema, @charge_schemas)
+    |> cast(attrs, @create_attrs)
+    |> validate_inclusion(:charge_schema, @charge_schemas)
+    |> validate_required(@create_attrs)
     |> unique_constraint(:name)
-    |> validate_required([:name, :is_public, :default_cost, :default_charge_schema])
   end
 
   @doc false
   def update_changeset(algorithm, attrs) do
     algorithm
-    |> cast(attrs, [:is_public, :default_cost, :default_charge_schema])
-    |> validate_inclusion(:default_charge_schema, @charge_schemas)
-    |> validate_required([:is_public, :default_cost, :default_charge_schema])
+    |> cast(attrs, @update_attrs)
+    |> validate_inclusion(:charge_schema, @charge_schemas)
+    |> validate_required(@update_attrs)
   end
 end

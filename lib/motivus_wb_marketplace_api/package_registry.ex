@@ -7,8 +7,10 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   import Ecto.Query, warn: false
   alias MotivusWbMarketplaceApi.Repo
+  alias Ecto.Multi
 
   alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
+  alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser
 
   @doc """
   Returns the list of algorithms.
@@ -19,17 +21,51 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       [%Algorithm{}, ...]
 
   """
+
+  @algorithm_preload_default [:versions, algorithm_users: [:user]]
+  def list_algorithms(params \\ %{})
+
   def list_algorithms(%{"name" => name}) do
     Algorithm
-    |> preload(:versions)
+    |> preload(^@algorithm_preload_default)
     |> where(name: ^name)
     |> Repo.all()
   end
 
-  def list_algorithms(_params) do
+  def list_algorithms(_) do
     Algorithm
-    |> preload(:versions)
+    |> preload(^@algorithm_preload_default)
     |> Repo.all()
+  end
+
+  def list_available_algorithms(user_id, _) do
+    query =
+      from a in Algorithm,
+        join: au in assoc(a, :algorithm_users),
+        where: a.is_public == true,
+        or_where: au.user_id == ^user_id,
+        preload: [algorithm_users: au]
+
+    query
+    |> preload(^@algorithm_preload_default)
+    |> Repo.all()
+    |> apply_role()
+  end
+
+  def apply_role(algorithms) do
+    algorithms
+    |> Enum.map(fn a ->
+      case a.algorithm_users do
+        [au] ->
+          case au.role do
+            "OWNER" -> a
+            _ -> a |> Map.merge(%{cost: au.cost, charge_schema: au.charge_schema})
+          end
+
+        _ ->
+          a
+      end
+    end)
   end
 
   @doc """
@@ -46,7 +82,25 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       ** (Ecto.NoResultsError)
 
   """
-  def get_algorithm!(id), do: Algorithm |> preload(:versions) |> Repo.get!(id)
+  def get_algorithm!(id), do: Algorithm |> preload(^@algorithm_preload_default) |> Repo.get!(id)
+
+  def get_algorithm!(user_id, id) do
+    query =
+      from a in Algorithm,
+        join: au in assoc(a, :algorithm_users),
+        where: a.id == ^id,
+        where: a.is_public == true or au.user_id == ^user_id,
+        preload: [algorithm_users: au]
+
+    algorithm =
+      query
+      |> preload(^@algorithm_preload_default)
+      |> Repo.one!()
+
+    [algorithm]
+    |> apply_role()
+    |> List.first()
+  end
 
   @doc """
   Creates a algorithm.
@@ -60,12 +114,26 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_algorithm(attrs \\ %{}) do
-    with {:ok, algorithm} <-
-           %Algorithm{}
-           |> Algorithm.create_changeset(attrs)
-           |> Repo.insert() do
-      {:ok, algorithm |> Repo.preload(:versions)}
+  def create_algorithm(attrs) do
+    with {:ok, %{algorithm: algorithm}} <-
+           Multi.new()
+           |> Multi.insert(
+             :algorithm,
+             %Algorithm{}
+             |> Algorithm.create_changeset(attrs)
+           )
+           |> Multi.insert(:owner, fn %{algorithm: algorithm} ->
+             %AlgorithmUser{}
+             |> AlgorithmUser.algorithm_owner_changeset(
+               attrs
+               |> Enum.into(%{"algorithm_id" => algorithm.id})
+             )
+           end)
+           |> Repo.transaction() do
+      {:ok, algorithm |> Repo.preload(@algorithm_preload_default)}
+    else
+      {:error, :algorithm, chset, _} -> {:error, chset}
+      e -> e
     end
   end
 
@@ -166,10 +234,10 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   end
 
   def publish_version(attrs \\ %{}) do
-    Ecto.Multi.new()
-    |> Ecto.Multi.insert(:version, %Version{} |> Version.create_changeset(attrs))
-    |> Ecto.Multi.run(:s3, fn _repo, %{version: version} -> upload_package(version) end)
-    |> Ecto.Multi.update(:version_urls, fn %{s3: links, version: version} ->
+    Multi.new()
+    |> Multi.insert(:version, %Version{} |> Version.create_changeset(attrs))
+    |> Multi.run(:s3, fn _repo, %{version: version} -> upload_package(version) end)
+    |> Multi.update(:version_urls, fn %{s3: links, version: version} ->
       version |> Version.update_changeset(links)
     end)
     |> Repo.transaction()
@@ -256,8 +324,6 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
     Version.update_changeset(version, %{})
   end
 
-  alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser
-
   @doc """
   Returns the list of algorithm_users.
 
@@ -268,7 +334,14 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def list_algorithm_users do
-    Repo.all(AlgorithmUser)
+    AlgorithmUser |> preload(:user) |> Repo.all()
+  end
+
+  def list_algorithm_users(algorithm_id, role) do
+    AlgorithmUser
+    |> where(algorithm_id: ^algorithm_id, role: ^role)
+    |> preload(:user)
+    |> Repo.all()
   end
 
   @doc """
@@ -285,7 +358,14 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       ** (Ecto.NoResultsError)
 
   """
-  def get_algorithm_user!(id), do: Repo.get!(AlgorithmUser, id)
+  def get_algorithm_user!(id), do: AlgorithmUser |> preload(:user) |> Repo.get!(id)
+
+  def get_algorithm_user!(algorithm_id, user_id),
+    do:
+      AlgorithmUser
+      |> preload(:user)
+      |> where(algorithm_id: ^algorithm_id, user_id: ^user_id)
+      |> Repo.one()
 
   @doc """
   Creates a algorithm_user.
@@ -300,9 +380,12 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def create_algorithm_user(attrs \\ %{}) do
-    %AlgorithmUser{}
-    |> AlgorithmUser.changeset(attrs)
-    |> Repo.insert()
+    with {:ok, algorithm_user} <-
+           %AlgorithmUser{}
+           |> AlgorithmUser.create_changeset(attrs)
+           |> Repo.insert() do
+      {:ok, algorithm_user |> Repo.preload(:user)}
+    end
   end
 
   @doc """
@@ -318,9 +401,12 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def update_algorithm_user(%AlgorithmUser{} = algorithm_user, attrs) do
-    algorithm_user
-    |> AlgorithmUser.changeset(attrs)
-    |> Repo.update()
+    with {:ok, algorithm_user} <-
+           algorithm_user
+           |> AlgorithmUser.update_changeset(attrs)
+           |> Repo.update() do
+      {:ok, algorithm_user |> Repo.preload(:user)}
+    end
   end
 
   @doc """
@@ -349,6 +435,36 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
 
   """
   def change_algorithm_user(%AlgorithmUser{} = algorithm_user) do
-    AlgorithmUser.changeset(algorithm_user, %{})
+    AlgorithmUser.create_changeset(algorithm_user, %{})
+  end
+
+  def validate_update_algorithm_user(%AlgorithmUser{} = algorithm_user, params) do
+    types = %{role: :string}
+
+    case {%AlgorithmUser{} = algorithm_user, types}
+         |> Ecto.Changeset.cast(params, Map.keys(types))
+         |> Ecto.Changeset.validate_required([:role])
+         |> ensure_remaining_owner() do
+      %{valid?: true} = chset -> {:ok, Ecto.Changeset.apply_changes(chset)}
+      %{valid?: false} = chset -> {:error, chset}
+    end
+  end
+
+  def validate_delete_algorithm_user(%AlgorithmUser{} = algorithm_user),
+    do: validate_update_algorithm_user(algorithm_user, %{role: "-"})
+
+  def ensure_remaining_owner(chset) do
+    algorithm_user_roles_after = [
+      %{role: chset.changes["role"]}
+      | list_algorithm_users(chset.data.algorithm_id, "OWNER")
+        |> Enum.filter(fn au -> au.id != chset.data.id end)
+        |> Enum.map(fn %{role: role} -> %{role: role} end)
+    ]
+
+    case algorithm_user_roles_after
+         |> Enum.filter(fn %{role: role} -> role == "OWNER" end) do
+      [] -> chset |> Ecto.Changeset.add_error(:owners, "At least one owner must remain")
+      _ -> chset
+    end
   end
 end
