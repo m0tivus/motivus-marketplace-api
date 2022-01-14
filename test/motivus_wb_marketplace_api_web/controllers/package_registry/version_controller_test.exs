@@ -92,6 +92,27 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
       assert response(conn, :forbidden)
     end
 
+    test "renders version when data is valid using personal_access_token",
+         %{algorithm: algorithm, user: user} = context do
+      {:ok, %{conn: conn}} = log_in_user(context, user, nil, :personal_access_token)
+
+      conn =
+        post(conn, Routes.package_registry_algorithm_version_path(conn, :create, algorithm),
+          version: @create_attrs
+        )
+
+      assert %{"id" => id} = json_response(conn, 201)["data"]
+
+      conn = get(conn, Routes.package_registry_algorithm_version_path(conn, :show, algorithm, id))
+
+      assert %{
+               "id" => ^id,
+               "metadata" => %{},
+               "name" => "1.0.0",
+               "inserted_at" => _date
+             } = json_response(conn, 200)["data"]
+    end
+
     test "renders errors when user has no permissions", %{algorithm: algorithm} = context do
       unrelated_user = user_fixture()
       {:ok, %{conn: conn}} = log_in_user(context, unrelated_user)

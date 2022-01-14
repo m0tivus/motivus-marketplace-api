@@ -34,6 +34,7 @@ defmodule MotivusWbMarketplaceApiWeb.Router do
       put "/user", UserController, :update
 
       resources "/application_tokens", ApplicationTokenController
+      resources "/personal_access_tokens", PersonalAccessTokenController
     end
 
     pipe_through :maybe_auth

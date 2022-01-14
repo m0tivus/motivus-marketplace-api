@@ -223,4 +223,109 @@ defmodule MotivusWbMarketplaceApi.Account do
   def change_application_token(%ApplicationToken{} = application_token) do
     ApplicationToken.update_changeset(application_token, %{})
   end
+
+  alias MotivusWbMarketplaceApi.Account.PersonalAccessToken
+
+  @doc """
+  Returns the list of personal_access_tokens.
+
+  ## Examples
+
+      iex> list_personal_access_tokens()
+      [%PersonalAccessToken{}, ...]
+
+  """
+  def list_personal_access_tokens do
+    Repo.all(PersonalAccessToken)
+  end
+
+  def list_personal_access_tokens(user_id),
+    do: PersonalAccessToken |> where(user_id: ^user_id) |> Repo.all()
+
+  @doc """
+  Gets a single personal_access_token.
+
+  Raises `Ecto.NoResultsError` if the Personal access token does not exist.
+
+  ## Examples
+
+      iex> get_personal_access_token!(123)
+      %PersonalAccessToken{}
+
+      iex> get_personal_access_token!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_personal_access_token!(id), do: Repo.get!(PersonalAccessToken, id)
+
+  def get_personal_access_token!(user_id, id),
+    do: PersonalAccessToken |> where(user_id: ^user_id, id: ^id) |> Repo.one!()
+
+  def get_personal_access_token_from_value!(value),
+    do: PersonalAccessToken |> where(value: ^value) |> Repo.one!()
+
+  @doc """
+  Creates a personal_access_token.
+
+  ## Examples
+
+      iex> create_personal_access_token(%{field: value})
+      {:ok, %PersonalAccessToken{}}
+
+      iex> create_personal_access_token(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_personal_access_token(attrs \\ %{}) do
+    %PersonalAccessToken{}
+    |> PersonalAccessToken.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a personal_access_token.
+
+  ## Examples
+
+      iex> update_personal_access_token(personal_access_token, %{field: new_value})
+      {:ok, %PersonalAccessToken{}}
+
+      iex> update_personal_access_token(personal_access_token, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_personal_access_token(%PersonalAccessToken{} = personal_access_token, attrs) do
+    personal_access_token
+    |> PersonalAccessToken.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a personal_access_token.
+
+  ## Examples
+
+      iex> delete_personal_access_token(personal_access_token)
+      {:ok, %PersonalAccessToken{}}
+
+      iex> delete_personal_access_token(personal_access_token)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_personal_access_token(%PersonalAccessToken{} = personal_access_token) do
+    Repo.delete(personal_access_token)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking personal_access_token changes.
+
+  ## Examples
+
+      iex> change_personal_access_token(personal_access_token)
+      %Ecto.Changeset{data: %PersonalAccessToken{}}
+
+  """
+  def change_personal_access_token(%PersonalAccessToken{} = personal_access_token, attrs \\ %{}) do
+    PersonalAccessToken.update_changeset(personal_access_token, attrs)
+  end
 end

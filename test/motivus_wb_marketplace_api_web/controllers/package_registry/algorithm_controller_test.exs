@@ -54,7 +54,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
              ] = json_response(conn, 200)["data"]
     end
 
-    test "lists all algorithms that a user has access to using application_token", context do
+    test "lists all algorithms that a user has access to using custom access_tokens", context do
       _algorithm = algorithm_fixture(%{"is_public" => false})
 
       %{id: id} = algorithm_fixture(%{"name" => "private-with-access", "is_public" => false})
@@ -63,6 +63,15 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
       algorithm_user_fixture(%{"user_id" => user.id, "algorithm_id" => id, "role" => "USER"})
 
       {:ok, %{conn: conn}} = log_in_user(context, user, nil, :application_token)
+      conn = get(conn, Routes.package_registry_algorithm_path(conn, :index))
+
+      assert [
+               %{
+                 "id" => ^id
+               }
+             ] = json_response(conn, 200)["data"]
+
+      {:ok, %{conn: conn}} = log_in_user(context, user, nil, :personal_access_token)
       conn = get(conn, Routes.package_registry_algorithm_path(conn, :index))
 
       assert [

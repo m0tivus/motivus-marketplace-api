@@ -27,4 +27,7 @@ defmodule MotivusWbMarketplaceApiWeb.AuthControllerCase do
 
   def log_in_user(context, user, _, :application_token),
     do: log_in_user(context, user, %{typ: "mwbat", description: "some description"})
+
+  def log_in_user(context, user, _, :personal_access_token),
+    do: log_in_user(context, user, %{typ: "mwbpat", description: "some description"})
 end

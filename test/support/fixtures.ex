@@ -111,4 +111,24 @@ defmodule MotivusWbMarketplaceApi.Fixtures do
 
     algorithm_user
   end
+
+  def personal_access_token_fixture(attrs \\ %{}) do
+    user =
+      case attrs["user_id"] do
+        nil -> user_fixture()
+        id -> Account.get_user!(id)
+      end
+
+    {:ok, personal_access_token} =
+      attrs
+      |> Enum.into(%{
+        "description" => "some description",
+        "valid" => true,
+        "value" => "some value",
+        "user_id" => user.id
+      })
+      |> Account.create_personal_access_token()
+
+    personal_access_token
+  end
 end

@@ -26,7 +26,15 @@ sleep 2
 mix phx.gen.json Account ApplicationToken application_tokens --web Account \
   user_id:references:users \
   value:string \
-  valid:boolean 
+  valid:boolean \
+  description:string
+sleep 2
+
+mix phx.gen.json Account PersonalAccessToken personal_access_tokens --web Account \
+  user_id:references:users \
+  value:string \
+  valid:boolean \
+  description:string
 sleep 2
 
 mix phx.gen.json PackageRegistry AlgorithmUser algorithm_users --web PackageRegistry \

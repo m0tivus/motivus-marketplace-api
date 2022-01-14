@@ -29,6 +29,15 @@ defmodule MotivusWbMarketplaceApi.Account.JwtOrMwbt do
     {:ok, application_token.value}
   end
 
+  def create_token(mod, %{"typ" => "mwbpat", "description" => description} = claims, _options) do
+    {:ok, user} = Guardian.returning_tuple({mod, :resource_from_claims, [claims]})
+
+    {:ok, personal_access_token} =
+      Account.create_personal_access_token(%{"description" => description, "user_id" => user.id})
+
+    {:ok, personal_access_token.value}
+  end
+
   def create_token(mod, claims, options), do: Jwt.create_token(mod, claims, options)
 
   def decode_token(mod, token, options \\ [])
@@ -38,6 +47,13 @@ defmodule MotivusWbMarketplaceApi.Account.JwtOrMwbt do
       Account.get_application_token_from_value!(token)
 
     {:ok, %{"sub" => user_id, "typ" => "mwbat", "description" => description}}
+  end
+
+  def decode_token(_mod, "MWBpat" <> _token_part = token, _options) do
+    %{user_id: user_id, description: description} =
+      Account.get_personal_access_token_from_value!(token)
+
+    {:ok, %{"sub" => user_id, "typ" => "mwbpat", "description" => description}}
   end
 
   def decode_token(mod, token, options), do: Jwt.decode_token(mod, token, options)
