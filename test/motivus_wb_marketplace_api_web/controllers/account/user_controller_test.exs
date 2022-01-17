@@ -19,7 +19,7 @@ defmodule MotivusWbMarketplaceApiWeb.Account.UserControllerTest do
   setup :with_auth
 
   describe "show user" do
-    test "renders current user", %{conn: conn, user: %User{id: id}} do
+    test "renders current user", %{conn: conn, user: %User{id: id} = user} = context do
       conn = get(conn, Routes.account_user_path(conn, :show))
 
       assert %{
@@ -29,6 +29,19 @@ defmodule MotivusWbMarketplaceApiWeb.Account.UserControllerTest do
                "provider" => "some provider",
                "username" => "username" <> _unique_username,
                "name" => "some name"
+             } = json_response(conn, 200)["data"]
+
+      {:ok, %{conn: conn}} = log_in_user(context, user, nil, :application_token)
+      conn = get(conn, Routes.account_user_path(conn, :show))
+
+      assert %{
+               "id" => ^id,
+               "avatar_url" => "some avatar_url",
+               "email" => "user@" <> _unique_mail,
+               "provider" => "some provider",
+               "username" => "username" <> _unique_username,
+               "name" => "some name",
+               "uuid" => _uuid
              } = json_response(conn, 200)["data"]
     end
   end
