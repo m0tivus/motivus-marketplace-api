@@ -38,6 +38,16 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
     |> Repo.all()
   end
 
+  def list_available_algorithms(nil, _) do
+    query =
+      from a in Algorithm,
+        where: a.is_public == true
+
+    query
+    |> preload(^@algorithm_preload_default)
+    |> Repo.all()
+  end
+
   def list_available_algorithms(user_id, _) do
     query =
       from a in Algorithm,

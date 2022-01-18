@@ -26,7 +26,12 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
   setup :with_auth
 
   describe "index" do
-    test "lists all algorithms", %{conn: conn} do
+    test "lists all algorithms", %{conn: conn} = context do
+      conn = get(conn, Routes.package_registry_algorithm_path(conn, :index))
+      assert json_response(conn, 200)["data"] == []
+
+      {:ok, %{conn: conn}} = log_out_user(context)
+
       conn = get(conn, Routes.package_registry_algorithm_path(conn, :index))
       assert json_response(conn, 200)["data"] == []
     end

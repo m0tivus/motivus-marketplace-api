@@ -19,6 +19,11 @@ config :logger, level: :info
 config :motivus_wb_marketplace_api,
   spa_oauth_redirect_uri: System.get_env("SPA_OAUTH_REDIRECT_URI", "https://motivus.cl/auth")
 
+config :cors_plug,
+  origin: ["https://motivus.cl"],
+  max_age: 86400,
+  methods: ["GET", "POST"]
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
