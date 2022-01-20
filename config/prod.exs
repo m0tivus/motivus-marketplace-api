@@ -22,7 +22,7 @@ config :motivus_wb_marketplace_api,
 config :cors_plug,
   origin: ["https://motivus.cl"],
   max_age: 86400,
-  methods: ["GET", "POST"]
+  methods: ["GET", "POST", "PUT"]
 
 # ## SSL Support
 #

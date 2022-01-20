@@ -56,6 +56,28 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert Enum.find(available_algorithms, &(&1.id == available_private_algorithm.id))
     end
 
+    test "list_available_algorithms/2 returns algorithm by name" do
+      user = user_fixture()
+      public_algorithm = algorithm_fixture(%{"name" => "public", "is_public" => true})
+      _private_algorithm = algorithm_fixture(%{"name" => "private", "is_public" => false})
+
+      available_private_algorithm =
+        algorithm_fixture(%{"name" => "private-2", "is_public" => false})
+
+      algorithm_user_fixture(%{
+        "user_id" => user.id,
+        "algorithm_id" => available_private_algorithm.id,
+        "role" => "USER"
+      })
+
+      public_algorithm = public_algorithm.id |> PackageRegistry.get_algorithm!()
+
+      assert [^public_algorithm] =
+               PackageRegistry.list_available_algorithms(user.id, %{
+                 "name" => public_algorithm.name
+               })
+    end
+
     test "get_algorithm!/1 returns the algorithm with given id" do
       algorithm = algorithm_fixture()
       assert PackageRegistry.get_algorithm!(algorithm.id) == algorithm

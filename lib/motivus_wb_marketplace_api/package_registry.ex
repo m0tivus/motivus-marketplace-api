@@ -38,23 +38,41 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
     |> Repo.all()
   end
 
-  def list_available_algorithms(nil, _) do
+  def list_available_algorithms(nil, filter) do
     query =
       from a in Algorithm,
         where: a.is_public == true
+
+    query =
+      case filter do
+        %{"name" => name} ->
+          from [a] in query, where: a.name == ^name
+
+        _ ->
+          query
+      end
 
     query
     |> preload(^@algorithm_preload_default)
     |> Repo.all()
   end
 
-  def list_available_algorithms(user_id, _) do
+  def list_available_algorithms(user_id, filter) do
     query =
       from a in Algorithm,
         join: au in assoc(a, :algorithm_users),
         where: a.is_public == true,
         or_where: au.user_id == ^user_id,
         preload: [algorithm_users: au]
+
+    query =
+      case filter do
+        %{"name" => name} ->
+          from [a] in query, where: a.name == ^name
+
+        _ ->
+          query
+      end
 
     query
     |> preload(^@algorithm_preload_default)
