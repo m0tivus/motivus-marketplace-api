@@ -83,6 +83,36 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert PackageRegistry.get_algorithm!(algorithm.id) == algorithm
     end
 
+    test "get_algorithm!/2 returns the algorithm with given id for the user given" do
+      user = user_fixture()
+      public_algorithm = algorithm_fixture(%{"name" => "public", "is_public" => true})
+      private_algorithm = algorithm_fixture(%{"name" => "private", "is_public" => false})
+
+      %{id: available_private_algorithm_id} =
+        available_private_algorithm =
+        algorithm_fixture(%{"name" => "private-2", "is_public" => false})
+
+      algorithm_user_fixture(%{
+        "user_id" => user.id,
+        "algorithm_id" => available_private_algorithm.id,
+        "role" => "USER"
+      })
+
+      public_algorithm = public_algorithm.id |> PackageRegistry.get_algorithm!()
+
+      assert PackageRegistry.get_algorithm!(user.id, public_algorithm.id) == public_algorithm
+
+      assert PackageRegistry.get_algorithm!(nil, public_algorithm.id) ==
+               public_algorithm
+
+      assert %{id: ^available_private_algorithm_id} =
+               PackageRegistry.get_algorithm!(user.id, available_private_algorithm_id)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        PackageRegistry.get_algorithm!(nil, private_algorithm.id)
+      end
+    end
+
     test "create_algorithm/1 with valid data creates a algorithm" do
       %{id: user_id} = user_fixture()
 

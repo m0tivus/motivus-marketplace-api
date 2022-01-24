@@ -112,6 +112,17 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
   """
   def get_algorithm!(id), do: Algorithm |> preload(^@algorithm_preload_default) |> Repo.get!(id)
 
+  def get_algorithm!(nil, id) do
+    query =
+      from a in Algorithm,
+        where: a.id == ^id,
+        where: a.is_public == true
+
+    query
+    |> preload(^@algorithm_preload_default)
+    |> Repo.one!()
+  end
+
   def get_algorithm!(user_id, id) do
     query =
       from a in Algorithm,
