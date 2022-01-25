@@ -1,6 +1,7 @@
 defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmUserView do
   use MotivusWbMarketplaceApiWeb, :view
   alias MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmUserView
+  alias MotivusWbMarketplaceApiWeb.Account.UserView
 
   def render("index.json", %{algorithm_users: algorithm_users}) do
     %{data: render_many(algorithm_users, AlgorithmUserView, "algorithm_user.json")}
@@ -17,7 +18,8 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmUserView do
       cost: algorithm_user.cost,
       charge_schema: algorithm_user.charge_schema,
       user_id: algorithm_user.user_id,
-      algorithm_id: algorithm_user.algorithm_id
+      algorithm_id: algorithm_user.algorithm_id,
+      user: algorithm_user.user |> render_one(UserView, "user.json")
     }
   end
 end
