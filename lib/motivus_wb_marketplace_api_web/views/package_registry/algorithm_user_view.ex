@@ -19,6 +19,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmUserView do
       charge_schema: algorithm_user.charge_schema,
       user_id: algorithm_user.user_id,
       algorithm_id: algorithm_user.algorithm_id,
+      # TODO: safer user view
       user: algorithm_user.user |> render_one(UserView, "user.json")
     }
   end
