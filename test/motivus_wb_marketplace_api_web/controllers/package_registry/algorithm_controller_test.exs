@@ -39,12 +39,20 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
     test "lists all algorithms that a user has access to", %{conn: conn, user: user} do
       _algorithm = algorithm_fixture(%{"is_public" => false})
 
-      %{id: id} =
-        algorithm_fixture(%{"name" => "private-with-access", "is_public" => false, "cost" => 100})
+      %{id: owner_algorithm_id} =
+        algorithm_fixture(%{
+          "name" => "private-owner",
+          "is_public" => false,
+          "cost" => 100,
+          "user_id" => user.id
+        })
+
+      %{id: user_algorithm_id} =
+        algorithm_fixture(%{"name" => "private-user", "is_public" => false, "cost" => 100})
 
       algorithm_user_fixture(%{
+        "algorithm_id" => user_algorithm_id,
         "user_id" => user.id,
-        "algorithm_id" => id,
         "role" => "USER",
         "cost" => 50
       })
@@ -53,8 +61,16 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
 
       assert [
                %{
-                 "id" => ^id,
-                 "cost" => 50.0
+                 "id" => ^owner_algorithm_id
+               },
+               %{"id" => ^user_algorithm_id, "cost" => 50.0}
+             ] = json_response(conn, 200)["data"]
+
+      conn = get(conn, Routes.package_registry_algorithm_path(conn, :index, %{"role" => "OWNER"}))
+
+      assert [
+               %{
+                 "id" => ^owner_algorithm_id
                }
              ] = json_response(conn, 200)["data"]
     end

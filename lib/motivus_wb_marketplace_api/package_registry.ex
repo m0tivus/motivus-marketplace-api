@@ -70,6 +70,10 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
         %{"name" => name} ->
           from [a] in query, where: a.name == ^name
 
+        %{"role" => "OWNER"} ->
+          from [a, au] in query,
+            where: au.role == "OWNER"
+
         _ ->
           query
       end
@@ -77,10 +81,10 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
     query
     |> preload(^@algorithm_preload_default)
     |> Repo.all()
-    |> apply_role()
+    |> apply_role_cost()
   end
 
-  def apply_role(algorithms) do
+  def apply_role_cost(algorithms) do
     algorithms
     |> Enum.map(fn a ->
       case a.algorithm_users do
@@ -137,7 +141,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
       |> Repo.one!()
 
     [algorithm]
-    |> apply_role()
+    |> apply_role_cost()
     |> List.first()
   end
 
