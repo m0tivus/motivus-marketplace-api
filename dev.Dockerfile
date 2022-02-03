@@ -1,4 +1,4 @@
-FROM elixir:1.10.4
+FROM elixir:1.13.1
 
 WORKDIR /app
 

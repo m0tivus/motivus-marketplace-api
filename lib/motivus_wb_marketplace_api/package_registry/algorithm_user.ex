@@ -23,9 +23,9 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser do
   def create_changeset(algorithm_user, attrs) do
     algorithm_user
     |> cast(attrs, [:role, :cost, :charge_schema, :algorithm_id, :user_id])
-    |> validate_required([:role, :cost, :charge_schema, :algorithm_id, :user_id])
+    |> validate_required([:role, :algorithm_id, :user_id])
     |> validate_inclusion(:role, @roles)
-    |> validate_inclusion(:charge_schema, @charge_schemas)
+    |> validate_role()
     |> unique_constraint(:user_id, name: :algorithm_users_algorithm_id_user_id_index)
   end
 
@@ -33,7 +33,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser do
   def update_changeset(algorithm_user, attrs) do
     algorithm_user
     |> cast(attrs, [:role, :cost, :charge_schema])
-    |> validate_required([:role, :cost, :charge_schema])
+    |> validate_required([:role])
     |> validate_inclusion(:role, @roles)
     |> validate_inclusion(:charge_schema, @charge_schemas)
   end
@@ -44,5 +44,15 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser do
     |> cast(attrs, [:algorithm_id, :user_id])
     |> validate_required([:algorithm_id, :user_id])
     |> put_change(:role, "OWNER")
+  end
+
+  defp validate_role(chset) do
+    with %{changes: %{role: "USER"}} <- chset do
+      chset
+      |> validate_required([:cost, :charge_schema])
+      |> validate_inclusion(:charge_schema, @charge_schemas)
+    else
+      _ -> chset
+    end
   end
 end

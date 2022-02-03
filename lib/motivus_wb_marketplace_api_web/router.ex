@@ -13,7 +13,8 @@ defmodule MotivusWbMarketplaceApiWeb.Router do
       plug(MotivusWbMarketplaceApi.Account.ApplicationTokenPipeline,
         allowed: [
           package_registry_algorithm: [:index, :show],
-          package_registry_algorithm_version: [:index, :show]
+          package_registry_algorithm_version: [:index, :show],
+          account_user: :show
         ]
       )
 
@@ -28,7 +29,7 @@ defmodule MotivusWbMarketplaceApiWeb.Router do
     pipe_through :api
 
     scope "/account", Account, as: :account do
-      pipe_through :auth
+      pipe_through [:auth, :application_token]
 
       get "/user", UserController, :show
       put "/user", UserController, :update
@@ -43,7 +44,6 @@ defmodule MotivusWbMarketplaceApiWeb.Router do
       pipe_through :application_token
 
       resources "/algorithms", AlgorithmController, as: :algorithm do
-        # TODO: personal_access_token -> push
         resources "/versions", VersionController
 
         pipe_through :auth

@@ -48,7 +48,8 @@ defmodule MotivusWbMarketplaceApi.MixProject do
       {:uuid, "~> 1.1"},
       {:guardian, "~> 2.0"},
       {:ueberauth_github, "~> 0.7"},
-      {:ueberauth_google, "~> 0.10"}
+      {:ueberauth_google, "~> 0.10"},
+      {:cors_plug, "~> 2.0"}
     ]
   end
 

@@ -25,6 +25,10 @@ defmodule MotivusWbMarketplaceApiWeb.AuthControllerCase do
     }
   end
 
+  def log_out_user(context) do
+    {:ok, %{conn: context.conn |> delete_req_header("authorization")}}
+  end
+
   def log_in_user(context, user, _, :application_token),
     do: log_in_user(context, user, %{typ: "mwbat", description: "some description"})
 

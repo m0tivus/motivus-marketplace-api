@@ -56,9 +56,61 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       assert Enum.find(available_algorithms, &(&1.id == available_private_algorithm.id))
     end
 
+    test "list_available_algorithms/2 returns algorithm by name" do
+      user = user_fixture()
+      public_algorithm = algorithm_fixture(%{"name" => "public", "is_public" => true})
+      _private_algorithm = algorithm_fixture(%{"name" => "private", "is_public" => false})
+
+      available_private_algorithm =
+        algorithm_fixture(%{"name" => "private-2", "is_public" => false})
+
+      algorithm_user_fixture(%{
+        "user_id" => user.id,
+        "algorithm_id" => available_private_algorithm.id,
+        "role" => "USER"
+      })
+
+      public_algorithm = public_algorithm.id |> PackageRegistry.get_algorithm!()
+
+      assert [^public_algorithm] =
+               PackageRegistry.list_available_algorithms(user.id, %{
+                 "name" => public_algorithm.name
+               })
+    end
+
     test "get_algorithm!/1 returns the algorithm with given id" do
       algorithm = algorithm_fixture()
       assert PackageRegistry.get_algorithm!(algorithm.id) == algorithm
+    end
+
+    test "get_algorithm!/2 returns the algorithm with given id for the user given" do
+      user = user_fixture()
+      public_algorithm = algorithm_fixture(%{"name" => "public", "is_public" => true})
+      private_algorithm = algorithm_fixture(%{"name" => "private", "is_public" => false})
+
+      %{id: available_private_algorithm_id} =
+        available_private_algorithm =
+        algorithm_fixture(%{"name" => "private-2", "is_public" => false})
+
+      algorithm_user_fixture(%{
+        "user_id" => user.id,
+        "algorithm_id" => available_private_algorithm.id,
+        "role" => "USER"
+      })
+
+      public_algorithm = public_algorithm.id |> PackageRegistry.get_algorithm!()
+
+      assert PackageRegistry.get_algorithm!(user.id, public_algorithm.id) == public_algorithm
+
+      assert PackageRegistry.get_algorithm!(nil, public_algorithm.id) ==
+               public_algorithm
+
+      assert %{id: ^available_private_algorithm_id} =
+               PackageRegistry.get_algorithm!(user.id, available_private_algorithm_id)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        PackageRegistry.get_algorithm!(nil, private_algorithm.id)
+      end
     end
 
     test "create_algorithm/1 with valid data creates a algorithm" do
@@ -226,11 +278,6 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
   describe "algorithm_users" do
     alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser
 
-    @valid_attrs %{
-      "charge_schema" => "PER_MINUTE",
-      "cost" => 120.5,
-      "role" => "USER"
-    }
     @update_attrs %{
       charge_schema: "PER_EXECUTION",
       cost: 456.7,
@@ -260,16 +307,32 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       algorithm = algorithm_fixture()
 
       assert {:ok, %AlgorithmUser{} = algorithm_user} =
-               @valid_attrs
-               |> Enum.into(%{
+               %{
+                 "charge_schema" => "PER_MINUTE",
+                 "cost" => 120.5,
+                 "role" => "USER",
                  "algorithm_id" => algorithm.id,
                  "user_id" => user.id
-               })
+               }
                |> PackageRegistry.create_algorithm_user()
 
       assert algorithm_user.charge_schema == "PER_MINUTE"
       assert algorithm_user.cost == 120.5
       assert algorithm_user.role == "USER"
+
+      user2 = user_fixture()
+
+      assert {:ok, %AlgorithmUser{} = algorithm_user} =
+               %{
+                 "role" => "OWNER",
+                 "algorithm_id" => algorithm.id,
+                 "user_id" => user2.id
+               }
+               |> PackageRegistry.create_algorithm_user()
+
+      assert algorithm_user.charge_schema == nil
+      assert algorithm_user.cost == nil
+      assert algorithm_user.role == "OWNER"
     end
 
     test "create_algorithm_user/1 with invalid data returns error changeset" do
