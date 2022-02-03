@@ -278,11 +278,6 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
   describe "algorithm_users" do
     alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser
 
-    @valid_attrs %{
-      "charge_schema" => "PER_MINUTE",
-      "cost" => 120.5,
-      "role" => "USER"
-    }
     @update_attrs %{
       charge_schema: "PER_EXECUTION",
       cost: 456.7,
@@ -312,16 +307,32 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
       algorithm = algorithm_fixture()
 
       assert {:ok, %AlgorithmUser{} = algorithm_user} =
-               @valid_attrs
-               |> Enum.into(%{
+               %{
+                 "charge_schema" => "PER_MINUTE",
+                 "cost" => 120.5,
+                 "role" => "USER",
                  "algorithm_id" => algorithm.id,
                  "user_id" => user.id
-               })
+               }
                |> PackageRegistry.create_algorithm_user()
 
       assert algorithm_user.charge_schema == "PER_MINUTE"
       assert algorithm_user.cost == 120.5
       assert algorithm_user.role == "USER"
+
+      user2 = user_fixture()
+
+      assert {:ok, %AlgorithmUser{} = algorithm_user} =
+               %{
+                 "role" => "OWNER",
+                 "algorithm_id" => algorithm.id,
+                 "user_id" => user2.id
+               }
+               |> PackageRegistry.create_algorithm_user()
+
+      assert algorithm_user.charge_schema == nil
+      assert algorithm_user.cost == nil
+      assert algorithm_user.role == "OWNER"
     end
 
     test "create_algorithm_user/1 with invalid data returns error changeset" do
