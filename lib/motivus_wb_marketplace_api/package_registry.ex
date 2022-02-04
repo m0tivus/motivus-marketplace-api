@@ -380,6 +380,10 @@ defmodule MotivusWbMarketplaceApi.PackageRegistry do
     AlgorithmUser |> preload(:user) |> Repo.all()
   end
 
+  def list_algorithm_users(algorithm_id) do
+    AlgorithmUser |> where(algorithm_id: ^algorithm_id) |> preload(:user) |> Repo.all()
+  end
+
   def list_algorithm_users(algorithm_id, role) do
     AlgorithmUser
     |> where(algorithm_id: ^algorithm_id, role: ^role)
