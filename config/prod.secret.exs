@@ -52,3 +52,8 @@ config :ex_aws,
   secret_access_key: {:system, "AWS_SECRET_ACCESS_KEY"},
   region: {:system, "AWS_REGION"},
   bucket: {:system, "AWS_S3_BUCKET_NAME"}
+
+config :ex_aws, :s3,
+  scheme: "https://",
+  host: {:system, "AWS_S3_HOST"},
+  region: {:system, "AWS_REGION"}
