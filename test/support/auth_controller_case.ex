@@ -1,6 +1,6 @@
-defmodule MotivusWbMarketplaceApiWeb.AuthControllerCase do
-  alias MotivusWbMarketplaceApi.Fixtures
-  alias MotivusWbMarketplaceApi.Account.Guardian
+defmodule MotivusMarketplaceApiWeb.AuthControllerCase do
+  alias MotivusMarketplaceApi.Fixtures
+  alias MotivusMarketplaceApi.Account.Guardian
   import Plug.Conn
 
   def with_auth(%{conn: _conn} = context) do

@@ -1,4 +1,4 @@
-# MotivusWbMarketplaceApi
+# MotivusMarketplaceApi
 
 To start your Phoenix server:
 

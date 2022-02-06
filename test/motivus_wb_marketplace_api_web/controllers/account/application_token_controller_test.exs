@@ -1,10 +1,10 @@
-defmodule MotivusWbMarketplaceApiWeb.Account.ApplicationTokenControllerTest do
-  use MotivusWbMarketplaceApiWeb.ConnCase
+defmodule MotivusMarketplaceApiWeb.Account.ApplicationTokenControllerTest do
+  use MotivusMarketplaceApiWeb.ConnCase
 
-  import MotivusWbMarketplaceApiWeb.AuthControllerCase
+  import MotivusMarketplaceApiWeb.AuthControllerCase
 
-  alias MotivusWbMarketplaceApi.Account.ApplicationToken
-  alias MotivusWbMarketplaceApi.Fixtures
+  alias MotivusMarketplaceApi.Account.ApplicationToken
+  alias MotivusMarketplaceApi.Fixtures
 
   @create_attrs %{
     valid: true,

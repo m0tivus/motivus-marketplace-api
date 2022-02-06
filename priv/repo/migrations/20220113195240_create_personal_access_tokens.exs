@@ -1,4 +1,4 @@
-defmodule MotivusWbMarketplaceApi.Repo.Migrations.CreatePersonalAccessTokens do
+defmodule MotivusMarketplaceApi.Repo.Migrations.CreatePersonalAccessTokens do
   use Ecto.Migration
 
   def change do

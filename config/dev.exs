@@ -1,10 +1,10 @@
 import Config
 
 # Configure your database
-config :motivus_wb_marketplace_api, MotivusWbMarketplaceApi.Repo,
+config :motivus_marketplace_api, MotivusMarketplaceApi.Repo,
   username: System.get_env("POSTGRES_USER", "postgres"),
   password: System.get_env("POSTGRES_PASSWORD", "postgres"),
-  database: System.get_env("POSTGRES_DB", "motivus_wb_marketplace_api_dev"),
+  database: System.get_env("POSTGRES_DB", "motivus_marketplace_api_dev"),
   hostname: System.get_env("DB_HOST", "localhost"),
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -15,7 +15,7 @@ config :motivus_wb_marketplace_api, MotivusWbMarketplaceApi.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
-config :motivus_wb_marketplace_api, MotivusWbMarketplaceApiWeb.Endpoint,
+config :motivus_marketplace_api, MotivusMarketplaceApiWeb.Endpoint,
   http: [port: 4000],
   debug_errors: true,
   code_reloader: true,
@@ -56,5 +56,5 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
-config :motivus_wb_marketplace_api,
+config :motivus_marketplace_api,
   spa_oauth_redirect_uri: System.get_env("SPA_OAUTH_REDIRECT_URI", "http://localhost:8000/auth")

@@ -1,9 +1,9 @@
-defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
-  use MotivusWbMarketplaceApiWeb.ConnCase
+defmodule MotivusMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
+  use MotivusMarketplaceApiWeb.ConnCase
 
-  import MotivusWbMarketplaceApiWeb.AuthControllerCase
+  import MotivusMarketplaceApiWeb.AuthControllerCase
 
-  import MotivusWbMarketplaceApi.Fixtures
+  import MotivusMarketplaceApi.Fixtures
 
   @create_attrs %{
     metadata: %{},

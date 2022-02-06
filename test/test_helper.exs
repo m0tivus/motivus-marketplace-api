@@ -1,2 +1,2 @@
 ExUnit.start()
-Ecto.Adapters.SQL.Sandbox.mode(MotivusWbMarketplaceApi.Repo, :manual)
+Ecto.Adapters.SQL.Sandbox.mode(MotivusMarketplaceApi.Repo, :manual)

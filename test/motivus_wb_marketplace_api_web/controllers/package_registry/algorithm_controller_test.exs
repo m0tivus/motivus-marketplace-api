@@ -1,10 +1,10 @@
-defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
-  use MotivusWbMarketplaceApiWeb.ConnCase
+defmodule MotivusMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
+  use MotivusMarketplaceApiWeb.ConnCase
 
-  import MotivusWbMarketplaceApiWeb.AuthControllerCase
+  import MotivusMarketplaceApiWeb.AuthControllerCase
 
-  alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
-  import MotivusWbMarketplaceApi.Fixtures
+  alias MotivusMarketplaceApi.PackageRegistry.Algorithm
+  import MotivusMarketplaceApi.Fixtures
 
   @create_attrs %{
     "charge_schema" => "PER_EXECUTION",
