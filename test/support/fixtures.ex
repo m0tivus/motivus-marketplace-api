@@ -1,7 +1,7 @@
-defmodule MotivusWbMarketplaceApi.Fixtures do
-  alias MotivusWbMarketplaceApi.Account
-  alias MotivusWbMarketplaceApi.PackageRegistry
-  alias MotivusWbMarketplaceApi.PackageRegistry.Version
+defmodule MotivusMarketplaceApi.Fixtures do
+  alias MotivusMarketplaceApi.Account
+  alias MotivusMarketplaceApi.PackageRegistry
+  alias MotivusMarketplaceApi.PackageRegistry.Version
 
   def user_fixture(attrs \\ %{}) do
     {:ok, user} =

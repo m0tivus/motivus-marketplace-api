@@ -5,16 +5,16 @@
 # Inside the script, you can read and write to any of your
 # repositories directly:
 #
-#     MotivusWbMarketplaceApi.Repo.insert!(%MotivusWbMarketplaceApi.SomeSchema{})
+#     MotivusMarketplaceApi.Repo.insert!(%MotivusMarketplaceApi.SomeSchema{})
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias MotivusWbMarketplaceApi.PackageRegistry
-alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
-alias MotivusWbMarketplaceApi.PackageRegistry.Version
-alias MotivusWbMarketplaceApi.Account.User
-alias MotivusWbMarketplaceApi.Account
+alias MotivusMarketplaceApi.PackageRegistry
+alias MotivusMarketplaceApi.PackageRegistry.Algorithm
+alias MotivusMarketplaceApi.PackageRegistry.Version
+alias MotivusMarketplaceApi.Account.User
+alias MotivusMarketplaceApi.Account
 
 {:ok, %User{id: user_id}} =
   %{

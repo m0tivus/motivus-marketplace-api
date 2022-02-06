@@ -1,4 +1,4 @@
-defmodule MotivusWbMarketplaceApi.Repo.Migrations.CreateUsers do
+defmodule MotivusMarketplaceApi.Repo.Migrations.CreateUsers do
   use Ecto.Migration
 
   def change do

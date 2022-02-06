@@ -1,11 +1,11 @@
-defmodule MotivusWbMarketplaceApi.AccountTest do
-  use MotivusWbMarketplaceApi.DataCase
+defmodule MotivusMarketplaceApi.AccountTest do
+  use MotivusMarketplaceApi.DataCase
 
-  import MotivusWbMarketplaceApi.Fixtures
-  alias MotivusWbMarketplaceApi.Account
+  import MotivusMarketplaceApi.Fixtures
+  alias MotivusMarketplaceApi.Account
 
   describe "users" do
-    alias MotivusWbMarketplaceApi.Account.User
+    alias MotivusMarketplaceApi.Account.User
 
     @valid_attrs %{
       avatar_url: "some avatar_url",
@@ -88,7 +88,7 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
   end
 
   describe "application_tokens" do
-    alias MotivusWbMarketplaceApi.Account.ApplicationToken
+    alias MotivusMarketplaceApi.Account.ApplicationToken
 
     @valid_attrs %{
       "valid" => true,
@@ -191,7 +191,7 @@ defmodule MotivusWbMarketplaceApi.AccountTest do
   end
 
   describe "personal_access_tokens" do
-    alias MotivusWbMarketplaceApi.Account.PersonalAccessToken
+    alias MotivusMarketplaceApi.Account.PersonalAccessToken
 
     @invalid_attrs %{description: nil, valid: nil, value: nil}
 

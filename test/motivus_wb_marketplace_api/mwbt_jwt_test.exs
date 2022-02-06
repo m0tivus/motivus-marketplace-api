@@ -1,10 +1,10 @@
-defmodule MotivusWbMarketplaceApi.MwbtJwtTest do
-  use MotivusWbMarketplaceApi.DataCase
+defmodule MotivusMarketplaceApi.MwbtJwtTest do
+  use MotivusMarketplaceApi.DataCase
 
-  import MotivusWbMarketplaceApi.Fixtures
+  import MotivusMarketplaceApi.Fixtures
 
   describe "mwbat" do
-    alias MotivusWbMarketplaceApi.Account.Guardian
+    alias MotivusMarketplaceApi.Account.Guardian
 
     test "encode_and_sign/1 returns JWT" do
       user = user_fixture()
