@@ -27,10 +27,12 @@ defmodule MotivusMarketplaceApi.DataCase do
     end
   end
 
-  setup _ do
+  setup tags do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(MotivusMarketplaceApi.Repo)
 
-    Ecto.Adapters.SQL.Sandbox.mode(MotivusMarketplaceApi.Repo, {:shared, self()})
+    unless tags[:async] do
+      Ecto.Adapters.SQL.Sandbox.mode(MotivusMarketplaceApi.Repo, {:shared, self()})
+    end
 
     :ok
   end
