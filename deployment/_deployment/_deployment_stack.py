@@ -1,6 +1,6 @@
 import os
 from aws_cdk import (
-    core,
+    core as cdk,
     aws_ec2,
     aws_ecs,
     aws_ecs_patterns,
@@ -15,27 +15,25 @@ from aws_cdk import (
 from aws_cdk.core import Duration
 
 
-class MotivusMarketplaceApiStack(core.Stack):
-    def __init__(self, scope: core.Construct, stack_id: str, **kwargs) -> None:
-        super().__init__(scope, stack_id, **kwargs)
+class MotivusMarketplaceApiStack(cdk.Stack):
+    def __init__(self, scope: cdk.Construct, construct_id: str, **kwargs) -> None:
+        super().__init__(scope, construct_id, **kwargs)
+
         title = 'motivus-marketplace-api'
 
-        repository = aws_ecr.Repository(self, f'{title}-repository', removal_policy=core.RemovalPolicy.DESTROY,
+        repository = aws_ecr.Repository(self, f'{title}-repository', removal_policy=cdk.RemovalPolicy.DESTROY,
                                         repository_name=title)
 
         vpc = aws_ec2.Vpc(self, f'{title}-vpc', max_azs=3)
 
-        db_password = aws_secretsmanager.Secret(self,
-                                                f'{title}-db-password',
-                                                generate_secret_string=aws_secretsmanager.SecretStringGenerator(
-                                                    password_length=20))
+        db_password = aws_secretsmanager.Secret(
+            self, f'{title}-db-password', generate_secret_string=aws_secretsmanager.SecretStringGenerator(password_length=20))
 
-        secret_key = aws_secretsmanager.Secret(self,
-                                               f'{title}-phx-app-secret-key',
-                                               generate_secret_string=aws_secretsmanager.SecretStringGenerator(
-                                                   password_length=65))
+        secret_key = aws_secretsmanager.Secret(
+            self, f'{title}-phx-app-secret-key', generate_secret_string=aws_secretsmanager.SecretStringGenerator(password_length=65))
 
-        creds = aws_rds.Credentials.from_password("motivus_admin", db_password.secret_value)
+        creds = aws_rds.Credentials.from_password(
+            "motivus_admin", db_password.secret_value)
 
         zone_name = 'motivus.cl'
 
@@ -60,17 +58,20 @@ class MotivusMarketplaceApiStack(core.Stack):
         access_key = aws_iam.AccessKey(self, f'{title}-user',
                                        user=user)
 
+        security_group = aws_ec2.SecurityGroup(
+            self, f'{title}-security-group', vpc=vpc)
 
-        security_group = aws_ec2.SecurityGroup(self, f'{title}-security-group', vpc=vpc)
-
-        security_group.add_ingress_rule(aws_ec2.Peer.ipv4('0.0.0.0/0'), aws_ec2.Port.tcp(5432))
+        security_group.add_ingress_rule(
+            aws_ec2.Peer.ipv4('0.0.0.0/0'), aws_ec2.Port.tcp(5432))
 
         database_name = "motivus_marketplace_api"
+        engine = aws_rds.DatabaseInstanceEngine.postgres(
+            version=aws_rds.PostgresEngineVersion.VER_12_3)
         db = aws_rds.DatabaseInstance(self, f'{title}-db-prod',
-                                      engine=aws_rds.DatabaseInstanceEngine.POSTGRES,
+                                      engine=engine,
                                       preferred_backup_window="05:00-06:00",
                                       backup_retention=Duration.days(7),
-                                      removal_policy=core.RemovalPolicy.RETAIN,
+                                      removal_policy=cdk.RemovalPolicy.RETAIN,
                                       deletion_protection=True,
                                       database_name=database_name,
                                       credentials=creds,
@@ -79,12 +80,14 @@ class MotivusMarketplaceApiStack(core.Stack):
                                       storage_type=aws_rds.StorageType.GP2,
                                       security_groups=[security_group],
                                       instance_identifier=f'{title}-db-prod',
-                                      vpc_placement=aws_ec2.SubnetSelection(subnet_type=aws_ec2.SubnetType.PUBLIC),
+                                      vpc_placement=aws_ec2.SubnetSelection(
+                                          subnet_type=aws_ec2.SubnetType.PUBLIC),
                                       vpc=vpc)
 
-        cluster = aws_ecs.Cluster(self, f'{title}-cluster', vpc=vpc, cluster_name=f'{title}-cluster')
+        cluster = aws_ecs.Cluster(
+            self, f'{title}-cluster', vpc=vpc, cluster_name=f'{title}-cluster')
 
-        registry = aws_ecs.EcrImage(repository=repository, tag='latest')
+        registry = aws_ecs.EcrImage(repository, 'latest')
 
         aws_ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
@@ -115,11 +118,9 @@ class MotivusMarketplaceApiStack(core.Stack):
                 }),
             memory_limit_mib=4096,
             cpu=2048,
-            health_check_grace_period=core.Duration.minutes(5),
+            health_check_grace_period=cdk.Duration.minutes(5),
             public_load_balancer=True,  # Default is False
             certificate=certificate,
             domain_name=domain_name,
             domain_zone=hosted_zone
         )
-        
-

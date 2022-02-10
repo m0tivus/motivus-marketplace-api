@@ -43,7 +43,7 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt install -y nodejs npm
       - run: sudo npm install -g aws-cdk
-      - run: CI="" cd deployment && pip install -r requirements.txt && cdk bootstrap && cdk deploy --progress events --ci --require-approval never
+      - run: CI="" cd deployment && source .venv/bin/activate && pip install -r requirements.txt && cdk bootstrap && cdk deploy --progress events --ci --require-approval never
       - aws-ecr/build-and-push-image:
           repo: motivus-marketplace-api
           skip-when-tags-exist: false

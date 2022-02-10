@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-from aws_cdk import core
+from aws_cdk import core as cdk
 
-from main import MotivusMarketplaceApiStack
+from _deployment._deployment_stack import MotivusMarketplaceApiStack
 
-app = core.App()
-env = core.Environment(account='522891085541', region='us-east-1')
-MotivusMarketplaceApiStack(app, 'motivus-wb-marketplace-api', env=env)
+app = cdk.App()
+env = cdk.Environment(account='522891085541', region='us-east-1')
+MotivusMarketplaceApiStack(app, 'motivus-marketplace-api', env=env)
 
 app.synth()
