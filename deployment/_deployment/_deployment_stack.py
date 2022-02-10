@@ -98,8 +98,8 @@ class MotivusMarketplaceApiStack(cdk.Stack):
             task_image_options=aws_ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
                 image=registry,
                 secrets={
-                    'DB_PASSWORD': aws_ecs.Secret.from_secrets_manager(db_password),
-                    'SECRET_KEY_BASE': aws_ecs.Secret.from_secrets_manager(secret_key)
+                    'DB_PASSWORD': db_password,
+                    'SECRET_KEY_BASE': secret_key
                 },
                 environment={
                     'MIX_ENV': 'prod',
