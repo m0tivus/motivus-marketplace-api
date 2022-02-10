@@ -13,6 +13,7 @@ from aws_cdk import (
     aws_certificatemanager
 )
 from aws_cdk.core import Duration
+from collections import ChainMap
 
 
 class MotivusMarketplaceApiStack(cdk.Stack):
@@ -89,6 +90,25 @@ class MotivusMarketplaceApiStack(cdk.Stack):
 
         registry = aws_ecs.EcrImage(repository, 'latest')
 
+        secrets = {
+            'DB_PASSWORD': aws_ecs.Secret.from_secrets_manager(db_password),
+            'SECRET_KEY_BASE': aws_ecs.Secret.from_secrets_manager(secret_key)
+        }
+        environment = {
+            'MIX_ENV': 'prod',
+            'DB_USER': 'motivus_admin',
+            'DB_NAME': database_name,
+            'DB_HOST': db.db_instance_endpoint_address,
+            'AWS_REGION': 'us-east-1',
+            'AWS_ACCESS_KEY_ID': access_key.access_key_id,
+            'AWS_SECRET_ACCESS_KEY': access_key.secret_access_key,
+            'AWS_S3_BUCKET_NAME': 'motivus-marketplace',
+            'AWS_S3_HOST': bucket.bucket_domain_name,
+            'GITHUB_CLIENT_ID': os.environ['GITHUB_CLIENT_ID'],
+            'GITHUB_CLIENT_SECRET': os.environ['GITHUB_CLIENT_SECRET'],
+            'GOOGLE_CLIENT_ID': os.environ['GOOGLE_CLIENT_ID'],
+            'GOOGLE_CLIENT_SECRET': os.environ['GOOGLE_CLIENT_SECRET'],
+        }
         aws_ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
             f'{title}-fargate-service',
@@ -97,25 +117,8 @@ class MotivusMarketplaceApiStack(cdk.Stack):
             service_name=f'{title}-service',
             task_image_options=aws_ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
                 image=registry,
-                secrets={
-                    'DB_PASSWORD': db_password,
-                    'SECRET_KEY_BASE': secret_key
-                },
-                environment={
-                    'MIX_ENV': 'prod',
-                    'DB_USER': 'motivus_admin',
-                    'DB_NAME': database_name,
-                    'DB_HOST': db.db_instance_endpoint_address,
-                    'AWS_REGION': 'us-east-1',
-                    'AWS_ACCESS_KEY_ID': access_key.access_key_id,
-                    'AWS_SECRET_ACCESS_KEY': access_key.secret_access_key,
-                    'AWS_S3_BUCKET_NAME': 'motivus-marketplace',
-                    'AWS_S3_HOST': bucket.bucket_domain_name,
-                    'GITHUB_CLIENT_ID': os.environ['GITHUB_CLIENT_ID'],
-                    'GITHUB_CLIENT_SECRET': os.environ['GITHUB_CLIENT_SECRET'],
-                    'GOOGLE_CLIENT_ID': os.environ['GOOGLE_CLIENT_ID'],
-                    'GOOGLE_CLIENT_SECRET': os.environ['GOOGLE_CLIENT_SECRET'],
-                }),
+                secrets=secrets,
+                environment=environment),
             memory_limit_mib=4096,
             cpu=2048,
             health_check_grace_period=cdk.Duration.minutes(5),
