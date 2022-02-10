@@ -55,7 +55,7 @@ class MotivusMarketplaceApiStack(cdk.Stack):
         user = aws_iam.User(self, f'{title}-user')
         bucket.grant_read_write(user)
 
-        access_key = aws_iam.AccessKey(self, f'{title}-user',
+        access_key = aws_iam.AccessKey(self, f'{title}-access-key',
                                        user=user)
 
         security_group = aws_ec2.SecurityGroup(
