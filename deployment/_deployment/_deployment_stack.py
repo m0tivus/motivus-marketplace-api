@@ -91,8 +91,8 @@ class MotivusMarketplaceApiStack(cdk.Stack):
         registry = aws_ecs.EcrImage(repository, 'latest')
 
         secrets = {
-            "DB_PASSWORD": db_password,
-            "SECRET_KEY_BASE": secret_key
+            "DB_PASSWORD": aws_ecs.Secret.from_secrets_manager(db_password),
+            "SECRET_KEY_BASE": aws_ecs.Secret.from_secrets_manager(secret_key)
         }
         environment = {
             "MIX_ENV": 'prod',
@@ -109,16 +109,16 @@ class MotivusMarketplaceApiStack(cdk.Stack):
             "GOOGLE_CLIENT_ID": os.environ['GOOGLE_CLIENT_ID'],
             "GOOGLE_CLIENT_SECRET": os.environ['GOOGLE_CLIENT_SECRET'],
         }
+        task_image_options = aws_ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
+            image=registry, secrets=secrets, environment=environment)
+
         aws_ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
             f'{title}-fargate-service',
             cluster=cluster,  # Required
             desired_count=1,  # Default is 1
             service_name=f'{title}-service',
-            task_image_options=aws_ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
-                image=registry,
-                secrets=secrets,
-                environment=environment),
+            task_image_options=task_image_options,
             memory_limit_mib=4096,
             cpu=2048,
             health_check_grace_period=cdk.Duration.minutes(5),
