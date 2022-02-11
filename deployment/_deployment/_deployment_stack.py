@@ -31,6 +31,8 @@ class MotivusMarketplaceApiStack(cdk.Stack):
         access_key = aws_iam.AccessKey(self, f'{title}-access-key',
                                        user=user)
 
+        db_password = aws_secretsmanager.Secret(
+            self, f'{title}-db-password', generate_secret_string=aws_secretsmanager.SecretStringGenerator(password_length=20, exclude_characters='/@" '))
 
         secret_key = aws_secretsmanager.Secret(
             self, f'{title}-phx-app-secret-key', generate_secret_string=aws_secretsmanager.SecretStringGenerator(password_length=65))
@@ -38,7 +40,8 @@ class MotivusMarketplaceApiStack(cdk.Stack):
         access_key_secret = aws_secretsmanager.Secret(
             self, f'{title}-access_key_secret', secret_string_beta1=aws_secretsmanager.SecretStringValueBeta1.from_token(access_key.secret_access_key.to_string()))
 
-        creds = aws_rds.Credentials.from_generated_secret("motivus_admin")
+        creds = aws_rds.Credentials.from_password(
+            "motivus_admin", db_password.secret_value)
 
         zone_name = 'motivus.cl'
 
@@ -91,7 +94,7 @@ class MotivusMarketplaceApiStack(cdk.Stack):
         image = aws_ecs.EcrImage(repository, 'latest')
 
         secrets = {
-            "DB_PASSWORD": aws_ecs.Secret.from_secrets_manager(creds.secret),
+            "DB_PASSWORD": aws_ecs.Secret.from_secrets_manager(db_password),
             "SECRET_KEY_BASE": aws_ecs.Secret.from_secrets_manager(secret_key),
             "AWS_SECRET_ACCESS_KEY": aws_ecs.Secret.from_secrets_manager(access_key_secret)
         }
