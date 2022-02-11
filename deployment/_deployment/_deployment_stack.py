@@ -91,23 +91,23 @@ class MotivusMarketplaceApiStack(cdk.Stack):
         registry = aws_ecs.EcrImage(repository, 'latest')
 
         secrets = {
-            'DB_PASSWORD': aws_ecs.Secret.from_secrets_manager(db_password),
-            'SECRET_KEY_BASE': aws_ecs.Secret.from_secrets_manager(secret_key)
+            "DB_PASSWORD": aws_ecs.Secret.from_secrets_manager(db_password),
+            "SECRET_KEY_BASE": aws_ecs.Secret.from_secrets_manager(secret_key)
         }
         environment = {
-            'MIX_ENV': 'prod',
-            'DB_USER': 'motivus_admin',
-            'DB_NAME': database_name,
-            'DB_HOST': db.db_instance_endpoint_address,
-            'AWS_REGION': 'us-east-1',
-            'AWS_ACCESS_KEY_ID': access_key.access_key_id,
-            'AWS_SECRET_ACCESS_KEY': access_key.secret_access_key,
-            'AWS_S3_BUCKET_NAME': 'motivus-marketplace',
-            'AWS_S3_HOST': bucket.bucket_domain_name,
-            'GITHUB_CLIENT_ID': os.environ['GITHUB_CLIENT_ID'],
-            'GITHUB_CLIENT_SECRET': os.environ['GITHUB_CLIENT_SECRET'],
-            'GOOGLE_CLIENT_ID': os.environ['GOOGLE_CLIENT_ID'],
-            'GOOGLE_CLIENT_SECRET': os.environ['GOOGLE_CLIENT_SECRET'],
+            "MIX_ENV": 'prod',
+            "DB_USER": 'motivus_admin',
+            "DB_NAME": database_name,
+            "DB_HOST": db.db_instance_endpoint_address,
+            "AWS_REGION": 'us-east-1',
+            "AWS_ACCESS_KEY_ID": access_key.access_key_id,
+            "AWS_SECRET_ACCESS_KEY": access_key.secret_access_key,
+            "AWS_S3_BUCKET_NAME": 'motivus-marketplace',
+            "AWS_S3_HOST": bucket.bucket_domain_name,
+            "GITHUB_CLIENT_ID": os.environ['GITHUB_CLIENT_ID'],
+            "GITHUB_CLIENT_SECRET": os.environ['GITHUB_CLIENT_SECRET'],
+            "GOOGLE_CLIENT_ID": os.environ['GOOGLE_CLIENT_ID'],
+            "GOOGLE_CLIENT_SECRET": os.environ['GOOGLE_CLIENT_SECRET'],
         }
         aws_ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
