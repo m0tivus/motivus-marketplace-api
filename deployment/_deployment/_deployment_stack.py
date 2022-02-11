@@ -88,11 +88,12 @@ class MotivusMarketplaceApiStack(cdk.Stack):
         cluster = aws_ecs.Cluster(
             self, f'{title}-cluster', vpc=vpc, cluster_name=f'{title}-cluster')
 
-        registry = aws_ecs.EcrImage(repository, 'latest')
+        image = aws_ecs.EcrImage(repository, 'latest')
 
         secrets = {
             "DB_PASSWORD": aws_ecs.Secret.from_secrets_manager(db_password),
-            "SECRET_KEY_BASE": aws_ecs.Secret.from_secrets_manager(secret_key)
+            "SECRET_KEY_BASE": aws_ecs.Secret.from_secrets_manager(secret_key),
+            # "AWS_SECRET_ACCESS_KEY": access_key.secret_access_key
         }
         environment = {
             "MIX_ENV": 'prod',
@@ -101,7 +102,6 @@ class MotivusMarketplaceApiStack(cdk.Stack):
             "DB_HOST": db.db_instance_endpoint_address,
             "AWS_REGION": 'us-east-1',
             "AWS_ACCESS_KEY_ID": access_key.access_key_id,
-            "AWS_SECRET_ACCESS_KEY": access_key.secret_access_key,
             "AWS_S3_BUCKET_NAME": 'motivus-marketplace',
             "AWS_S3_HOST": bucket.bucket_domain_name,
             "GITHUB_CLIENT_ID": os.environ['GITHUB_CLIENT_ID'],
@@ -110,7 +110,7 @@ class MotivusMarketplaceApiStack(cdk.Stack):
             "GOOGLE_CLIENT_SECRET": os.environ['GOOGLE_CLIENT_SECRET'],
         }
         task_image_options = aws_ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
-            image=registry, secrets=secrets, environment=environment)
+            image=image, secrets=secrets, environment=environment)
 
         aws_ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
