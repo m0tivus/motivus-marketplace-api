@@ -82,7 +82,6 @@ class MotivusMarketplaceApiStack(cdk.Stack):
                                       instance_type=aws_ec2.InstanceType.of(aws_ec2.InstanceClass.BURSTABLE3,
                                                                             aws_ec2.InstanceSize.MEDIUM),
                                       storage_type=aws_rds.StorageType.GP2,
-                                      security_groups=[security_group],
                                       instance_identifier=f'{title}-db-prod',
                                       vpc_subnets=aws_ec2.SubnetSelection(
                                           subnet_type=aws_ec2.SubnetType.PUBLIC),
