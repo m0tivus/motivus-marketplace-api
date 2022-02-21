@@ -62,11 +62,11 @@ class MotivusMarketplaceApiStack(cdk.Stack):
                                public_read_access=True)
         bucket.grant_read_write(user)
 
-        security_group = aws_ec2.SecurityGroup(
-            self, f'{title}-security-group', vpc=vpc)
+        # security_group = aws_ec2.SecurityGroup(
+        #     self, f'{title}-security-group', vpc=vpc)
 
-        security_group.add_ingress_rule(
-            aws_ec2.Peer.ipv4('0.0.0.0/0'), aws_ec2.Port.tcp(5432))
+        # security_group.add_ingress_rule(
+        #     aws_ec2.Peer.ipv4('0.0.0.0/0'), aws_ec2.Port.tcp(5432))
 
         database_name = "motivus_marketplace_api"
         engine = aws_rds.DatabaseInstanceEngine.postgres(
