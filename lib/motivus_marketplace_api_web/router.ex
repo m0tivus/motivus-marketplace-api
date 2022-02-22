@@ -18,6 +18,10 @@ defmodule MotivusMarketplaceApiWeb.Router do
         ]
       )
 
+  scope "/" do
+    get "/", MotivusMarketplaceApiWeb.HealthCheckController, :health_check
+  end
+
   scope "/auth", MotivusMarketplaceApiWeb.Account do
     pipe_through :api
 
