@@ -2,7 +2,7 @@
 # from environment variables. You can also hardcode secrets,
 # although such is generally not recommended and you have to
 # remember to add this file to your .gitignore.
-use Mix.Config
+import Config
 
 # database_url =
 #   System.get_env("DATABASE_URL") ||
@@ -24,11 +24,10 @@ config :motivus_marketplace_api, MotivusMarketplaceApi.Repo,
   queue_interval: 30000
 
 secret_key_base =
-  System.get_env("SECRET_KEY_BASE") ||
-    raise """
-    environment variable SECRET_KEY_BASE is missing.
-    You can generate one by calling: mix phx.gen.secret
-    """
+  System.get_env(
+    "SECRET_KEY_BASE",
+    "73o77n1g16Z8FvEBL4O+ZWd5nLkpWp1fqk9iABFasuundiTIil+tIpLwz1GCNqUo"
+  )
 
 config :motivus_marketplace_api, MotivusMarketplaceApiWeb.Endpoint,
   http: [
