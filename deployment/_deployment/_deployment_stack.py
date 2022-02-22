@@ -86,7 +86,8 @@ class MotivusMarketplaceApiStack(cdk.Stack):
                                       vpc_subnets=aws_ec2.SubnetSelection(
                                           subnet_type=aws_ec2.SubnetType.PUBLIC),
                                       vpc=vpc)
-
+        db.connections.allow_default_port_from_any_ipv4()
+        
         cluster = aws_ecs.Cluster(
             self, f'{title}-cluster', vpc=vpc, cluster_name=f'{title}-cluster')
 
