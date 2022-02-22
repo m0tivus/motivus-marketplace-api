@@ -12,7 +12,6 @@ services:
         env_file: .env
         environment:
             - DB_HOST=db
-            - MIX_ENV=prod
         command: ["./run.sh"]
         tty: true
     db:
