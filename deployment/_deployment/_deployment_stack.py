@@ -111,6 +111,7 @@ class MotivusMarketplaceApiStack(cdk.Stack):
             "GITHUB_CLIENT_SECRET": os.environ['GITHUB_CLIENT_SECRET'],
             "GOOGLE_CLIENT_ID": os.environ['GOOGLE_CLIENT_ID'],
             "GOOGLE_CLIENT_SECRET": os.environ['GOOGLE_CLIENT_SECRET'],
+            "PORT": "80"
         }
         task_image_options = aws_ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
             image=image, secrets=secrets, environment=environment)
