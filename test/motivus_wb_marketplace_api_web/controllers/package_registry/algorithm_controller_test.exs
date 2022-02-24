@@ -1,10 +1,10 @@
-defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
-  use MotivusWbMarketplaceApiWeb.ConnCase
+defmodule MotivusMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
+  use MotivusMarketplaceApiWeb.ConnCase
 
-  import MotivusWbMarketplaceApiWeb.AuthControllerCase
+  import MotivusMarketplaceApiWeb.AuthControllerCase
 
-  alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
-  import MotivusWbMarketplaceApi.Fixtures
+  alias MotivusMarketplaceApi.PackageRegistry.Algorithm
+  import MotivusMarketplaceApi.Fixtures
 
   @create_attrs %{
     "charge_schema" => "PER_EXECUTION",
@@ -37,7 +37,7 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
     end
 
     test "lists all algorithms that a user has access to", %{conn: conn, user: user} do
-      _algorithm = algorithm_fixture(%{"is_public" => false})
+      %{id: public_algorithm_id} = algorithm_fixture(%{"is_public" => true})
 
       %{id: owner_algorithm_id} =
         algorithm_fixture(%{
@@ -60,6 +60,9 @@ defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
       conn = get(conn, Routes.package_registry_algorithm_path(conn, :index))
 
       assert [
+               %{
+                 "id" => ^public_algorithm_id
+               },
                %{
                  "id" => ^owner_algorithm_id
                },

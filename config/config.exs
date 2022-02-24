@@ -7,15 +7,15 @@
 # General application configuration
 import Config
 
-config :motivus_wb_marketplace_api,
-  ecto_repos: [MotivusWbMarketplaceApi.Repo]
+config :motivus_marketplace_api,
+  ecto_repos: [MotivusMarketplaceApi.Repo]
 
 # Configures the endpoint
-config :motivus_wb_marketplace_api, MotivusWbMarketplaceApiWeb.Endpoint,
+config :motivus_marketplace_api, MotivusMarketplaceApiWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "uyvlxmmK0GTQHcRCDIIZWmFQwrL/81CszsKdmS2M6MV5fxVMXfz+aqhp57j64fGE",
-  render_errors: [view: MotivusWbMarketplaceApiWeb.ErrorView, accepts: ~w(json)],
-  pubsub_server: MotivusWbMarketplaceApi.PubSub,
+  render_errors: [view: MotivusMarketplaceApiWeb.ErrorView, accepts: ~w(json)],
+  pubsub_server: MotivusMarketplaceApi.PubSub,
   live_view: [signing_salt: "sRmhueH+"]
 
 # Configures Elixir's Logger
@@ -37,8 +37,8 @@ config :ex_aws, :s3,
   host: "wb-marketplace-test.s3.amazonaws.com",
   region: "us-east-1"
 
-config :motivus_wb_marketplace_api, MotivusWbMarketplaceApi.Account.Guardian,
-  issuer: "motivus_wb_marketplace_api",
+config :motivus_marketplace_api, MotivusMarketplaceApi.Account.Guardian,
+  issuer: "motivus_marketplace_api",
   secret_key: "ivmFeKzF+WdQVIv5aRHcACepNFPuS/oty3vF4ddW1Lgmpiq2okNMEAz4b2hzeMQ8"
 
 config :ueberauth, Ueberauth,

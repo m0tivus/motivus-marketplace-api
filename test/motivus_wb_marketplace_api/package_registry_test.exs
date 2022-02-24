@@ -1,11 +1,11 @@
-defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
-  use MotivusWbMarketplaceApi.DataCase
-  import MotivusWbMarketplaceApi.Fixtures
+defmodule MotivusMarketplaceApi.PackageRegistryTest do
+  use MotivusMarketplaceApi.DataCase
+  import MotivusMarketplaceApi.Fixtures
 
-  alias MotivusWbMarketplaceApi.PackageRegistry
+  alias MotivusMarketplaceApi.PackageRegistry
 
   describe "algorithms" do
-    alias MotivusWbMarketplaceApi.PackageRegistry.Algorithm
+    alias MotivusMarketplaceApi.PackageRegistry.Algorithm
 
     @valid_attrs %{
       "charge_schema" => "PER_EXECUTION",
@@ -174,7 +174,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
   end
 
   describe "versions" do
-    alias MotivusWbMarketplaceApi.PackageRegistry.Version
+    alias MotivusMarketplaceApi.PackageRegistry.Version
 
     @valid_attrs %{
       "hash" => "some hash",
@@ -276,7 +276,7 @@ defmodule MotivusWbMarketplaceApi.PackageRegistryTest do
   end
 
   describe "algorithm_users" do
-    alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser
+    alias MotivusMarketplaceApi.PackageRegistry.AlgorithmUser
 
     @update_attrs %{
       charge_schema: "PER_EXECUTION",

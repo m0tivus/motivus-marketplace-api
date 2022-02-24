@@ -2,7 +2,7 @@
 # from environment variables. You can also hardcode secrets,
 # although such is generally not recommended and you have to
 # remember to add this file to your .gitignore.
-use Mix.Config
+import Config
 
 # database_url =
 #   System.get_env("DATABASE_URL") ||
@@ -11,7 +11,7 @@ use Mix.Config
 #     For example: ecto://USER:PASS@HOST/DATABASE
 #     """
 
-config :motivus_wb_marketplace_api, MotivusWbMarketplaceApi.Repo,
+config :motivus_marketplace_api, MotivusMarketplaceApi.Repo,
   # ssl: true,
   # url: database_url,
   username: System.get_env("DB_USER"),
@@ -24,13 +24,12 @@ config :motivus_wb_marketplace_api, MotivusWbMarketplaceApi.Repo,
   queue_interval: 30000
 
 secret_key_base =
-  System.get_env("SECRET_KEY_BASE") ||
-    raise """
-    environment variable SECRET_KEY_BASE is missing.
-    You can generate one by calling: mix phx.gen.secret
-    """
+  System.get_env(
+    "SECRET_KEY_BASE",
+    "73o77n1g16Z8FvEBL4O+ZWd5nLkpWp1fqk9iABFasuundiTIil+tIpLwz1GCNqUo"
+  )
 
-config :motivus_wb_marketplace_api, MotivusWbMarketplaceApiWeb.Endpoint,
+config :motivus_marketplace_api, MotivusMarketplaceApiWeb.Endpoint,
   http: [
     port: String.to_integer(System.get_env("PORT") || "4000"),
     transport_options: [socket_opts: [:inet6]]
@@ -42,7 +41,7 @@ config :motivus_wb_marketplace_api, MotivusWbMarketplaceApiWeb.Endpoint,
 # If you are doing OTP releases, you need to instruct Phoenix
 # to start each relevant endpoint:
 #
-#     config :motivus_wb_marketplace_api, MotivusWbMarketplaceApiWeb.Endpoint, server: true
+#     config :motivus_marketplace_api, MotivusMarketplaceApiWeb.Endpoint, server: true
 #
 # Then you can assemble a release by calling `mix release`.
 # See `mix help release` for more information.
@@ -52,3 +51,8 @@ config :ex_aws,
   secret_access_key: {:system, "AWS_SECRET_ACCESS_KEY"},
   region: {:system, "AWS_REGION"},
   bucket: {:system, "AWS_S3_BUCKET_NAME"}
+
+config :ex_aws, :s3,
+  scheme: "https://",
+  host: {:system, "AWS_S3_HOST"},
+  region: {:system, "AWS_REGION"}

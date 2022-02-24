@@ -1,10 +1,10 @@
-defmodule MotivusWbMarketplaceApiWeb.Account.PersonalAccessTokenControllerTest do
-  use MotivusWbMarketplaceApiWeb.ConnCase
-  import MotivusWbMarketplaceApiWeb.AuthControllerCase
+defmodule MotivusMarketplaceApiWeb.Account.PersonalAccessTokenControllerTest do
+  use MotivusMarketplaceApiWeb.ConnCase
+  import MotivusMarketplaceApiWeb.AuthControllerCase
 
-  import MotivusWbMarketplaceApi.Fixtures
+  import MotivusMarketplaceApi.Fixtures
 
-  alias MotivusWbMarketplaceApi.Account.PersonalAccessToken
+  alias MotivusMarketplaceApi.Account.PersonalAccessToken
 
   @create_attrs %{
     "description" => "some description",

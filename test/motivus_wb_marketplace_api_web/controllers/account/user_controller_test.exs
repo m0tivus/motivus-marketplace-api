@@ -1,9 +1,9 @@
-defmodule MotivusWbMarketplaceApiWeb.Account.UserControllerTest do
-  use MotivusWbMarketplaceApiWeb.ConnCase
+defmodule MotivusMarketplaceApiWeb.Account.UserControllerTest do
+  use MotivusMarketplaceApiWeb.ConnCase
 
-  import MotivusWbMarketplaceApiWeb.AuthControllerCase
+  import MotivusMarketplaceApiWeb.AuthControllerCase
 
-  alias MotivusWbMarketplaceApi.Account.User
+  alias MotivusMarketplaceApi.Account.User
 
   @update_attrs %{
     avatar_url: "some updated avatar_url",

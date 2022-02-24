@@ -1,11 +1,11 @@
-defmodule MotivusWbMarketplaceApiWeb.PackageRegistry.AlgorithmUserControllerTest do
-  use MotivusWbMarketplaceApiWeb.ConnCase
+defmodule MotivusMarketplaceApiWeb.PackageRegistry.AlgorithmUserControllerTest do
+  use MotivusMarketplaceApiWeb.ConnCase
 
-  alias MotivusWbMarketplaceApi.PackageRegistry.AlgorithmUser
+  alias MotivusMarketplaceApi.PackageRegistry.AlgorithmUser
 
-  import MotivusWbMarketplaceApiWeb.AuthControllerCase
+  import MotivusMarketplaceApiWeb.AuthControllerCase
 
-  import MotivusWbMarketplaceApi.Fixtures
+  import MotivusMarketplaceApi.Fixtures
 
   @create_attrs %{
     charge_schema: "PER_MINUTE",

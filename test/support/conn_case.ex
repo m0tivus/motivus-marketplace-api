@@ -1,4 +1,4 @@
-defmodule MotivusWbMarketplaceApiWeb.ConnCase do
+defmodule MotivusMarketplaceApiWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -11,7 +11,7 @@ defmodule MotivusWbMarketplaceApiWeb.ConnCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use MotivusWbMarketplaceApiWeb.ConnCase, async: true`, although
+  by setting `use MotivusMarketplaceApiWeb.ConnCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -22,18 +22,18 @@ defmodule MotivusWbMarketplaceApiWeb.ConnCase do
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
-      alias MotivusWbMarketplaceApiWeb.Router.Helpers, as: Routes
+      alias MotivusMarketplaceApiWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing
-      @endpoint MotivusWbMarketplaceApiWeb.Endpoint
+      @endpoint MotivusMarketplaceApiWeb.Endpoint
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(MotivusWbMarketplaceApi.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(MotivusMarketplaceApi.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(MotivusWbMarketplaceApi.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(MotivusMarketplaceApi.Repo, {:shared, self()})
     end
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}
