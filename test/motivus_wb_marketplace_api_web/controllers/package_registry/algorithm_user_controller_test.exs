@@ -29,6 +29,8 @@ defmodule MotivusMarketplaceApiWeb.PackageRegistry.AlgorithmUserControllerTest d
 
   describe "index" do
     test "lists all algorithm_users", %{conn: conn, algorithm: %{id: algorithm_id} = algorithm} do
+      algorithm_fixture(%{"name" => "other"})
+
       conn =
         get(conn, Routes.package_registry_algorithm_algorithm_user_path(conn, :index, algorithm))
 

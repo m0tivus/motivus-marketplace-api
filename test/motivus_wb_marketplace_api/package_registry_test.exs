@@ -290,6 +290,12 @@ defmodule MotivusMarketplaceApi.PackageRegistryTest do
       assert PackageRegistry.list_algorithm_users() > 0
     end
 
+    test "list_algorithm_users/1 returns all algorithm_users in algorithm" do
+      %{id: algorithm_id} = algorithm_fixture(%{"name" => "other"})
+      algorithm_user_fixture()
+      assert length(PackageRegistry.list_algorithm_users(algorithm_id)) == 1
+    end
+
     test "get_algorithm_user!/1 returns the algorithm_user with given id" do
       algorithm_user = algorithm_user_fixture()
       assert PackageRegistry.get_algorithm_user!(algorithm_user.id) == algorithm_user

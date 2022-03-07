@@ -59,11 +59,20 @@ defmodule MotivusMarketplaceApi.PackageRegistry do
 
   def list_available_algorithms(user_id, filter) do
     query =
-      from a in Algorithm,
-        join: au in assoc(a, :algorithm_users),
-        where: a.is_public == true,
-        or_where: au.user_id == ^user_id,
-        preload: [algorithm_users: au]
+      case filter do
+        %{"role" => "OWNER"} ->
+          from a in Algorithm,
+            join: au in assoc(a, :algorithm_users),
+            or_where: au.user_id == ^user_id,
+            preload: [algorithm_users: au]
+
+        _ ->
+          from a in Algorithm,
+            join: au in assoc(a, :algorithm_users),
+            where: a.is_public == true,
+            or_where: au.user_id == ^user_id,
+            preload: [algorithm_users: au]
+      end
 
     query =
       case filter do
@@ -378,6 +387,10 @@ defmodule MotivusMarketplaceApi.PackageRegistry do
   """
   def list_algorithm_users do
     AlgorithmUser |> preload(:user) |> Repo.all()
+  end
+
+  def list_algorithm_users(algorithm_id) do
+    AlgorithmUser |> where(algorithm_id: ^algorithm_id) |> preload(:user) |> Repo.all()
   end
 
   def list_algorithm_users(algorithm_id, role) do

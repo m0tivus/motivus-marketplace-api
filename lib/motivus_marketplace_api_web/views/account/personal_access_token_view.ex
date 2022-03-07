@@ -21,7 +21,8 @@ defmodule MotivusMarketplaceApiWeb.Account.PersonalAccessTokenView do
       id: personal_access_token.id,
       value: personal_access_token.value,
       valid: personal_access_token.valid,
-      description: personal_access_token.description
+      description: personal_access_token.description,
+      inserted_at: personal_access_token.inserted_at
     }
   end
 end

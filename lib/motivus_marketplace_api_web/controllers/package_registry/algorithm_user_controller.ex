@@ -14,7 +14,8 @@ defmodule MotivusMarketplaceApiWeb.PackageRegistry.AlgorithmUserController do
   action_fallback MotivusMarketplaceApiWeb.FallbackController
 
   def index(conn, _params) do
-    algorithm_users = PackageRegistry.list_algorithm_users()
+    %{id: algorithm_id} = conn.assigns.algorithm
+    algorithm_users = PackageRegistry.list_algorithm_users(algorithm_id)
     render(conn, "index.json", algorithm_users: algorithm_users)
   end
 
@@ -60,6 +61,7 @@ defmodule MotivusMarketplaceApiWeb.PackageRegistry.AlgorithmUserController do
     render(conn, "show.json", algorithm_user: algorithm_user)
   end
 
+  # TODO: only owned algorithm users
   def update(conn, %{"id" => id, "algorithm_user" => algorithm_user_params}) do
     algorithm_user = PackageRegistry.get_algorithm_user!(id)
 

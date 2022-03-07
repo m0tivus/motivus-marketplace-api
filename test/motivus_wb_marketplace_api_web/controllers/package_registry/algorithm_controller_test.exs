@@ -37,7 +37,7 @@ defmodule MotivusMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
     end
 
     test "lists all algorithms that a user has access to", %{conn: conn, user: user} do
-      _algorithm = algorithm_fixture(%{"is_public" => false})
+      %{id: public_algorithm_id} = algorithm_fixture(%{"is_public" => true})
 
       %{id: owner_algorithm_id} =
         algorithm_fixture(%{
@@ -60,6 +60,9 @@ defmodule MotivusMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
       conn = get(conn, Routes.package_registry_algorithm_path(conn, :index))
 
       assert [
+               %{
+                 "id" => ^public_algorithm_id
+               },
                %{
                  "id" => ^owner_algorithm_id
                },

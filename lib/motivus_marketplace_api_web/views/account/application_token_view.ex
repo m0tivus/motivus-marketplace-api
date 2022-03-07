@@ -15,7 +15,8 @@ defmodule MotivusMarketplaceApiWeb.Account.ApplicationTokenView do
       id: application_token.id,
       value: application_token.value,
       valid: application_token.valid,
-      description: application_token.description
+      description: application_token.description,
+      inserted_at: application_token.inserted_at
     }
   end
 end
