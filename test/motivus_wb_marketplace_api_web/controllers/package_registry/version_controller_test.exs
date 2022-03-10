@@ -66,6 +66,24 @@ defmodule MotivusMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
   describe "create version" do
     test "renders version when data is valid",
          %{conn: conn, algorithm: algorithm, user: user} = context do
+      algorithm_no_data = algorithm_fixture(%{"user_id" => user.id, "name" => "no-data"})
+
+      conn =
+        post(
+          conn,
+          Routes.package_registry_algorithm_version_path(conn, :create, algorithm_no_data),
+          version: %{
+            metadata: %{},
+            name: "1.0.0",
+            package: %Plug.Upload{
+              path: 'test/support/fixtures/no-data-1.0.0.zip',
+              filename: "no-data-1.0.0.zip"
+            }
+          }
+        )
+
+      assert %{"id" => _} = json_response(conn, 201)["data"]
+
       conn =
         post(conn, Routes.package_registry_algorithm_version_path(conn, :create, algorithm),
           version: @create_attrs

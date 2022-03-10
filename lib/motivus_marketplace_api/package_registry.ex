@@ -306,6 +306,7 @@ defmodule MotivusMarketplaceApi.PackageRegistry do
     paths =
       Map.take(version, [:wasm_url, :loader_url, :data_url])
       |> Map.values()
+      |> Enum.reject(&is_nil/1)
       |> Enum.map(fn path -> {to_string(path), to_string(path)} end)
       |> Enum.into(%{})
 
