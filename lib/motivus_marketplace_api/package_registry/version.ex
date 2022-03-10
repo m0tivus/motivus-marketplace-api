@@ -36,7 +36,6 @@ defmodule MotivusMarketplaceApi.PackageRegistry.Version do
       :metadata,
       :wasm_url,
       :loader_url,
-      :data_url,
       :algorithm_id
     ])
     |> changeset_metadata()
