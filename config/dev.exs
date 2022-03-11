@@ -58,3 +58,14 @@ config :phoenix, :plug_init_mode, :runtime
 
 config :motivus_marketplace_api,
   spa_oauth_redirect_uri: System.get_env("SPA_OAUTH_REDIRECT_URI", "http://localhost:8000/auth")
+
+config :ex_aws,
+  access_key_id: "AKIAXTPV4Y3S7GNVOAOY",
+  secret_access_key: "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",
+  region: "us-east-1",
+  bucket: "wb-marketplace-test"
+
+config :ex_aws, :s3,
+  scheme: "https://",
+  host: "wb-marketplace-test.s3.amazonaws.com",
+  region: "us-east-1"

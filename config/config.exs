@@ -26,17 +26,6 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :ex_aws,
-  access_key_id: "AKIAXTPV4Y3S7GNVOAOY",
-  secret_access_key: "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",
-  region: "us-east-1",
-  bucket: "wb-marketplace-test"
-
-config :ex_aws, :s3,
-  scheme: "https://",
-  host: "wb-marketplace-test.s3.amazonaws.com",
-  region: "us-east-1"
-
 config :motivus_marketplace_api, MotivusMarketplaceApi.Account.Guardian,
   issuer: "motivus_marketplace_api",
   secret_key: "ivmFeKzF+WdQVIv5aRHcACepNFPuS/oty3vF4ddW1Lgmpiq2okNMEAz4b2hzeMQ8"
