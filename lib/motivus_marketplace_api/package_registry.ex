@@ -299,7 +299,7 @@ defmodule MotivusMarketplaceApi.PackageRegistry do
     bucket = Application.get_env(:ex_aws, :bucket)
 
     upload_file = fn {src_path, dest_path} ->
-      S3.put_object(bucket, dest_path, File.read!(src_path), acl: :public_read)
+      S3.put_object(bucket, dest_path, File.read!(src_path))
       |> ExAws.request!()
     end
 

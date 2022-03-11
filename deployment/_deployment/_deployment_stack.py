@@ -59,7 +59,8 @@ class MotivusMarketplaceApiStack(cdk.Stack):
 
         bucket = aws_s3.Bucket(self, f'{title}-bucket',
                                bucket_name='motivus-marketplace',
-                               public_read_access=True)
+                               public_read_access=True,
+                               object_ownership=aws_s3.ObjectOwnership.BUCKET_OWNER_ENFORCED)
         bucket.grant_read_write(user)
 
         # security_group = aws_ec2.SecurityGroup(
