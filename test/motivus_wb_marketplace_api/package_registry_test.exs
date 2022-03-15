@@ -137,6 +137,20 @@ defmodule MotivusMarketplaceApi.PackageRegistryTest do
     end
 
     test "create_algorithm/1 with invalid data returns error changeset" do
+      %{id: user_id} = user_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               PackageRegistry.create_algorithm(
+                 @valid_attrs
+                 |> Map.merge(%{"name" => "no spaces allowed", "user_id" => user_id})
+               )
+
+      assert {:error, %Ecto.Changeset{}} =
+               PackageRegistry.create_algorithm(
+                 @valid_attrs
+                 |> Map.merge(%{"name" => "only-alphanumeric!*(}/.,", "user_id" => user_id})
+               )
+
       assert {:error, %Ecto.Changeset{}} = PackageRegistry.create_algorithm(@invalid_attrs)
     end
 

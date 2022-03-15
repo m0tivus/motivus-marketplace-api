@@ -27,6 +27,9 @@ defmodule MotivusMarketplaceApi.PackageRegistry.Algorithm do
     |> cast(attrs, @create_attrs)
     |> validate_inclusion(:charge_schema, @charge_schemas)
     |> validate_required(@create_attrs)
+    |> validate_format(:name, ~r/^[a-z0-9]+([-_\S]{1}[a-z0-9]+)*$/i,
+      message: "use only lowercase letters, numbers and - _ "
+    )
     |> unique_constraint(:name)
   end
 
