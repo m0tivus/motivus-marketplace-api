@@ -57,6 +57,15 @@ defmodule MotivusMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
         "cost" => 50
       })
 
+      %{id: maintainer_algorithm_id} =
+        algorithm_fixture(%{"name" => "private-maintainer", "is_public" => false, "cost" => 100})
+
+      algorithm_user_fixture(%{
+        "algorithm_id" => maintainer_algorithm_id,
+        "user_id" => user.id,
+        "role" => "MAINTAINER"
+      })
+
       conn = get(conn, Routes.package_registry_algorithm_path(conn, :index))
 
       assert [
@@ -66,7 +75,8 @@ defmodule MotivusMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
                %{
                  "id" => ^owner_algorithm_id
                },
-               %{"id" => ^user_algorithm_id, "cost" => 50.0}
+               %{"id" => ^user_algorithm_id, "cost" => 50.0},
+               %{"id" => ^maintainer_algorithm_id}
              ] = json_response(conn, 200)["data"]
 
       conn = get(conn, Routes.package_registry_algorithm_path(conn, :index, %{"role" => "OWNER"}))
@@ -74,6 +84,15 @@ defmodule MotivusMarketplaceApiWeb.PackageRegistry.AlgorithmControllerTest do
       assert [
                %{
                  "id" => ^owner_algorithm_id
+               }
+             ] = json_response(conn, 200)["data"]
+
+      conn =
+        get(conn, Routes.package_registry_algorithm_path(conn, :index, %{"role" => "MAINTAINER"}))
+
+      assert [
+               %{
+                 "id" => ^maintainer_algorithm_id
                }
              ] = json_response(conn, 200)["data"]
     end

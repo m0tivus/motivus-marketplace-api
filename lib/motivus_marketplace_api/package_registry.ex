@@ -60,7 +60,7 @@ defmodule MotivusMarketplaceApi.PackageRegistry do
   def list_available_algorithms(user_id, filter) do
     query =
       case filter do
-        %{"role" => "OWNER"} ->
+        %{"role" => role} when role in ~w(OWNER MAINTAINER) ->
           from a in Algorithm,
             join: au in assoc(a, :algorithm_users),
             or_where: au.user_id == ^user_id,
@@ -79,9 +79,9 @@ defmodule MotivusMarketplaceApi.PackageRegistry do
         %{"name" => name} ->
           from [a] in query, where: a.name == ^name
 
-        %{"role" => "OWNER"} ->
+        %{"role" => role} when role in ~w(OWNER MAINTAINER) ->
           from [a, au] in query,
-            where: au.role == "OWNER"
+            where: au.role == ^role
 
         _ ->
           query
