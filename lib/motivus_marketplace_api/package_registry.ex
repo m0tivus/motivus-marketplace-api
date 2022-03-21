@@ -325,6 +325,7 @@ defmodule MotivusMarketplaceApi.PackageRegistry do
   defp put_version_urls(version, bucket),
     do:
       Map.take(version, [:wasm_url, :loader_url, :data_url])
+      |> Enum.reject(fn {_k, v} -> is_nil(v) end)
       |> Enum.map(fn {k, v} ->
         {k, "https://#{bucket}.s3.amazonaws.com/#{bucket}#{v |> to_string()}"}
       end)

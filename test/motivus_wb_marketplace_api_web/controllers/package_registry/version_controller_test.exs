@@ -82,7 +82,20 @@ defmodule MotivusMarketplaceApiWeb.PackageRegistry.VersionControllerTest do
           }
         )
 
-      assert %{"id" => _} = json_response(conn, 201)["data"]
+      assert %{"id" => id} = json_response(conn, 201)["data"]
+
+      {:ok, %{conn: conn}} = log_in_user(context, user, nil, :application_token)
+      conn = get(conn, Routes.package_registry_algorithm_version_path(conn, :show, algorithm, id))
+
+      assert %{
+               "id" => ^id,
+               "metadata" => %{},
+               "name" => "1.0.0",
+               "inserted_at" => _date,
+               "data_url" => nil
+             } = json_response(conn, 200)["data"]
+
+      {:ok, %{conn: conn}} = log_in_user(context, user)
 
       conn =
         post(conn, Routes.package_registry_algorithm_version_path(conn, :create, algorithm),
