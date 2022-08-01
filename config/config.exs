@@ -45,7 +45,7 @@ config :ueberauth, Ueberauth.Strategy.Google.OAuth,
   client_secret: {System, :get_env, ["GOOGLE_CLIENT_SECRET"]}
 
 config :cors_plug,
-  origin: ["http://localhost:3000", "http://localhost:8000"],
+  origin: ["http://localhost:3000", "http://localhost:8000", "http://motivus.clx"],
   max_age: 86400,
   methods: ["GET", "POST", "PUT", "DELETE"]
 
