@@ -9,6 +9,6 @@ set -e
 # Potentially Set up the database
 mix ecto.create
 mix ecto.migrate
-mix ecto.seed
+mix run priv/repo/seeds.exs
 echo " Launching Phoenix web server..."
 mix phx.server --no-compile
