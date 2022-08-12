@@ -20,7 +20,7 @@ config :motivus_marketplace_api,
   spa_oauth_redirect_uri: System.get_env("SPA_OAUTH_REDIRECT_URI", "https://motivus.cl/auth/")
 
 config :cors_plug,
-  origin: ["https://motivus.cl"],
+  origin: ["https://motivus.cl", "http://motivus.clx"],
   max_age: 86400,
   methods: ["GET", "POST", "PUT", "DELETE"]
 
