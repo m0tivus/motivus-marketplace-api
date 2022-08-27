@@ -1,0 +1,8 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  namespace: marketplace
+  name: marketplace-managed-cert
+spec:
+  domains:
+    - marketplace.api.motivus.cl
