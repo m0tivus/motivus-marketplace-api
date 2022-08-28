@@ -3,6 +3,8 @@ kind: Config
 metadata:
   name: motivus-marketplace-api
 build:
+  local:
+    tryImportMissing: true
   artifacts:
   - image: marketplace-api
     docker:

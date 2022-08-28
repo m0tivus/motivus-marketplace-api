@@ -25,9 +25,9 @@ spec:
             - containerPort: 80
           env:
             - name: GITHUB_CLIENT_ID
-              value: f2357420d89e533da6eb
+              value: 632df5a7d65f50b52698
             - name: GITHUB_CLIENT_SECRET
-              value: e47b016733b859bc9523237a8ce2e927478b7a5a
+              value: bf95faaab1dfc442b26f0fd8aec16bed40470745
             - name: GOOGLE_CLIENT_ID
               value: "907083709486-pubdmk40go3n76brdoevu5iklsgmrus5.apps.googleusercontent.com"
             - name: GOOGLE_CLIENT_SECRET
@@ -53,6 +53,6 @@ spec:
             - name: PORT
               value: "80"
             - name: SPA_OAUTH_REDIRECT_URI
-              value: https://motivus.cl/auth/
+              value: http://motivus.cl/auth/
             - name: SECRET_KEY_BASE
               value: o3LZY1dfsKQN4aLKanqCn8zFkcwDN/8UVPxfMs629+x4iDKdluhtaFUxZ9t54TPH
