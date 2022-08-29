@@ -9,8 +9,8 @@ metadata:
 spec:
   storageClassName: manual
   capacity:
-    storage: 5Gi # Sets PV's size
+    storage: 2Gi # Sets PV's size
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: /opt/data-nas/minikube # Sets PV's host path
+    path: /opt/data-nas/minikube/marketplace-db # Sets PV's host path
