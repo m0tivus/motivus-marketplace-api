@@ -77,12 +77,12 @@ jobs:
         type: string
     steps:
       - checkout
-      - pull_submodules
+      #- pull_submodules
       # - docker/check:
       #     docker-username: << parameters.dockerhub_user >>
       #     docker-password: << parameters.dockerhub_password >>
       - gcp-gke/install
-      - gcp-gke/initn bbbbbbb
+      - gcp-gke/init
       - gcr/gcr-auth
       - run:
           name: Install Kustomize
