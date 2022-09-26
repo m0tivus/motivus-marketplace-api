@@ -141,7 +141,7 @@ workflows:
           filters:
             branches:
               only:
-                - skaffold
+                - sc-1851/skaffold
           requires:
             - test
       # - ecs-update-service:
