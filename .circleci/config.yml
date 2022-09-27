@@ -111,7 +111,7 @@ jobs:
       #     command: kubectl wait --for=condition=complete --timeout=300s job/<< parameters.service-name >>-collectstatic --namespace=<< parameters.namespace >>
       - run:
           name: Enable Docker deamon
-          command: curl -fsSL "https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.0.0/docker-credential-gcr_linux_amd64-2.0.0.tar.gz" \ | sudo tar xz --to-stdout ./docker-credential-gcr \ > /usr/bin/docker-credential-gcr && sudo chmod +x /usr/bin/docker-credential-gcr
+          command: sudo ./docker_enable.sh
       - run:
           name: Auth Docker
           command: docker-credential-gcr configure-docker --registries=southamerica-west1-docker.pkg.dev
