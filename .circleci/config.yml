@@ -44,8 +44,8 @@ jobs:
       - run: mix test
 
   deploy:
-    #machine:
-    #docker_layer_caching: true
+    machine:
+      docker_layer_caching: true
     parameters:
       service-name:
         default: ci_marketplace
