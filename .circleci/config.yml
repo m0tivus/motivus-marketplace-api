@@ -11,10 +11,10 @@ orbs:
   #aws-cli: circleci/aws-cli@1.3.0
   #aws-ecr: circleci/aws-ecr@6.12.2
 
-executors:
-  python:
-    docker:
-      - image: circleci/python:3.6.8.circleci
+# executors:
+#   python:
+#     docker:
+#       - image: circleci/python:3.9.6.circleci
 
 jobs:
   test:
@@ -140,7 +140,7 @@ jobs:
 workflows:
   main:
     jobs:
-      - test
+      # - test
       - deploy:
           filters:
             branches:
