@@ -85,6 +85,9 @@ jobs:
       - gcp-gke/init
       - gcr/gcr-auth
       - run:
+          name: login docker registry
+          command: gcloud auth configure-docker southamerica-west1-docker.pkg.dev
+      - run:
           name: Install Kustomize
           command: curl -Lo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v3.2.3/kustomize_kustomize.v3.2.3_linux_amd64 && chmod +x kustomize && sudo mv kustomize /usr/local/bin
       - run:
