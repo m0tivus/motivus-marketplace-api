@@ -116,6 +116,9 @@ jobs:
           name: Auth Docker
           command: docker-credential-gcr configure-docker --registries=southamerica-west1-docker.pkg.dev
       - run:
+          name: Auth Docker token
+          command: docker-credential-gcr config --token-source="gcloud" 
+      - run:
           name: Rollout updated deployment
           command: skaffold run -f ./skaffold.yaml -p << parameters.environment >>
       # - run:
