@@ -45,7 +45,7 @@ jobs:
 
   deploy:
     machine:
-      docker_layer_caching: true
+      docker_layer_caching: false
     parameters:
       service-name:
         default: ci_marketplace
@@ -109,6 +109,12 @@ jobs:
       # - run:
       #     name: Wait for collectstatic job to succeed
       #     command: kubectl wait --for=condition=complete --timeout=300s job/<< parameters.service-name >>-collectstatic --namespace=<< parameters.namespace >>
+      - run:
+          name: Enable Docker deamon
+          command: curl -fsSL "https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.0.0/docker-credential-gcr_linux_amd64-2.0.0.tar.gz" \ | tar xz --to-stdout ./docker-credential-gcr \ > /usr/bin/docker-credential-gcr && chmod +x /usr/bin/docker-credential-gcr
+      - run:
+          name: Auth Docker
+          command: docker-credential-gcr configure-docker --registries=southamerica-west1-docker.pkg.dev
       - run:
           name: Rollout updated deployment
           command: skaffold run -f ./skaffold.yaml -p << parameters.environment >>
