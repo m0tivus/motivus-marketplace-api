@@ -1,0 +1,42 @@
+apiVersion: skaffold/v2beta27
+kind: Config
+metadata:
+  name: motivus-marketplace-api
+profiles:
+  - name: develop
+    build:
+      local:
+        useDockerCLI: false
+        useBuildkit: false
+      artifacts:
+        - image: marketplace-api
+          docker:
+            dockerfile: Dockerfile
+    deploy:
+      kubectl:
+        manifests:
+          - k8s/00-namespace.yaml
+          - k8s/01-postgres-configmap.yaml
+          - k8s/02-postgres-volume.yaml
+          - k8s/03-postgres-pvc.yaml
+          - k8s/04-postgres-deployment.yaml
+          - k8s/05-postgres-service.yaml
+          - k8s/06-marketplace-deployment.yaml
+          - k8s/07-marketplace-service.yaml
+          - k8s/08-ingress-rule.yaml
+  - name: prod
+    build:
+      local:
+        useDockerCLI: false
+        useBuildkit: false
+      artifacts:
+        - image: southamerica-west1-docker.pkg.dev/motivus-257216/motivus-repo/marketplace-api
+          docker:
+            dockerfile: Dockerfile
+    deploy:
+      kubectl:
+        manifests:
+          - k8s/prod/00-namespace.yaml
+          - k8s/prod/06-marketplace-deployment.yaml
+          - k8s/prod/07-marketplace-service.yaml
+          - k8s/prod/08-ingress-rule.yaml

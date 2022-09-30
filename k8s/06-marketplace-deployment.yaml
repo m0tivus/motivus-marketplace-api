@@ -1,0 +1,58 @@
+# az postgres flexible-server create -g aks_test_clu_group -n wb-db --public-access all -l eastus --sku Standard_B1ms --tier Burstable
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: marketplace
+  name: marketplace-deployment
+  labels:
+    app: marketplace-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: marketplace
+  template:
+    metadata:
+      labels:
+        app: marketplace
+    spec:
+      containers:
+        - name: marketplace
+          image: marketplace-api:latest
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 80
+          env:
+            - name: GITHUB_CLIENT_ID
+              value: 632df5a7d65f50b52698
+            - name: GITHUB_CLIENT_SECRET
+              value: bf95faaab1dfc442b26f0fd8aec16bed40470745
+            - name: GOOGLE_CLIENT_ID
+              value: "907083709486-pubdmk40go3n76brdoevu5iklsgmrus5.apps.googleusercontent.com"
+            - name: GOOGLE_CLIENT_SECRET
+              value: 4Atimx7SM-Q98mtNFWNBLjst
+            - name: DB_HOST
+              value: postgres
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              value: postgres
+            - name: DB_NAME
+              value: motivus_marketplace_api_dev
+            - name: AWS_ACCESS_KEY_ID
+              value: AKIAXTPV4Y3S7GNVOAOY
+            - name: AWS_SECRET_ACCESS_KEY
+              value: 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
+            - name: AWS_S3_BUCKET_NAME
+              value: wb-marketplace-test
+            - name: AWS_REGION
+              value: us-east-1
+            - name: MIX_ENV
+              value: prod
+            - name: PORT
+              value: "80"
+            - name: SPA_OAUTH_REDIRECT_URI
+              value: http://motivus.cl/auth/
+            - name: SECRET_KEY_BASE
+              value: o3LZY1dfsKQN4aLKanqCn8zFkcwDN/8UVPxfMs629+x4iDKdluhtaFUxZ9t54TPH

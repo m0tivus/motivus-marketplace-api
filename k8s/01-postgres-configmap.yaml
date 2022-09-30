@@ -1,0 +1,13 @@
+# Create ConfigMap postgres-secret for the postgres app
+# Define default database name, user, and password
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: marketplace
+  name: postgres-secret-marketplace
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: motivus_marketplace_api_dev
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres

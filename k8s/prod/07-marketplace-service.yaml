@@ -1,0 +1,24 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  namespace: marketplace
+  name: marketplace-managed-cert
+spec:
+  domains:
+    - marketplace.api.motivus.cl
+---
+apiVersion: v1
+kind: Service # Create service
+metadata:
+  namespace: marketplace
+  name: marketplace # Sets the service name
+  labels:
+    app: marketplace # Defines app to create service for
+spec:
+  type: NodePort # Sets the service type
+  ports:
+    - port: 80 # Sets the port to run the marketplace application
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: marketplace

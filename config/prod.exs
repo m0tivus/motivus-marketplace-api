@@ -10,8 +10,8 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :motivus_marketplace_api, MotivusMarketplaceApiWeb.Endpoint,
-  url: [host: "marketplace.api.motivus.cl", port: 80],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  url: [host: "marketplace.api.motivus.cl", port: 80]
+#  cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
 config :logger, level: :info
@@ -20,9 +20,9 @@ config :motivus_marketplace_api,
   spa_oauth_redirect_uri: System.get_env("SPA_OAUTH_REDIRECT_URI", "https://motivus.cl/auth/")
 
 config :cors_plug,
-  origin: ["https://motivus.cl", "http://motivus.clx"],
+  origin: ["https://motivus.cl"],
   max_age: 86400,
-  methods: ["GET", "POST", "PUT", "DELETE"]
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 
 # ## SSL Support
 #

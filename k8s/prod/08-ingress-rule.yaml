@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: marketplace
+  name: marketplace-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: motivus-proxy-marketplace
+    networking.gke.io/managed-certificates: marketplace-managed-cert
+    kubernetes.io/ingress.class: "gce"
+spec:
+  rules:
+    - host: marketplace.api.motivus.cl
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: marketplace
+                port:
+                  number: 80
