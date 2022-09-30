@@ -41,11 +41,13 @@ spec:
             - name: DB_NAME
               value: motivus_marketplace_api_prod
             - name: AWS_ACCESS_KEY_ID
-              value: AKIAXTPV4Y3S7GNVOAOY
+              value: AKIAXTPV4Y3S3OY6WC73
             - name: AWS_SECRET_ACCESS_KEY
-              value: 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
+              value: E5OSJ4ALTE0CqJvNSMGc3aFKPuAKJOEgK6bcazbs
             - name: AWS_S3_BUCKET_NAME
-              value: wb-marketplace-test
+              value: motivus-marketplace
+            - name: AWS_S3_HOST
+              value: motivus-marketplace.s3.amazonaws.com
             - name: AWS_REGION
               value: us-east-1
             - name: MIX_ENV
