@@ -27,4 +27,4 @@ motivus_wb_marketplace_api-*.tar
 # this depending on your deployment strategy.
 /priv/static/
 
-.env
+
